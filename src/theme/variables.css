@@ -2,6 +2,15 @@
 http://ionicframework.com/docs/theming/ */
 
 /** Ionic CSS Variables **/
+@font-face {
+  font-family: "proxima-nova";
+  src: url(https://cdn.jsdelivr.net/npm/font-proxima-nova@1.0.1/fonts/ProximaNova-Regular.ttf);
+  font-weight: normal;
+  font-style: normal;
+}
+* {
+  font-family: "proxima-nova" !important;
+}
 :root {
   /** primary **/
   --ion-color-primary: #3880ff;
@@ -76,13 +85,13 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-light-tint: #f5f6f9;
 }
 
-@media (prefers-color-scheme: dark) {
-  /*
+/* @media (prefers-color-scheme: dark) { */
+/*
    * Dark Colors
    * -------------------------------------------
    */
 
-  body {
+/* body {
     --ion-color-primary: #428cff;
     --ion-color-primary-rgb: 66,140,255;
     --ion-color-primary-contrast: #ffffff;
@@ -145,14 +154,14 @@ http://ionicframework.com/docs/theming/ */
     --ion-color-light-contrast-rgb: 255,255,255;
     --ion-color-light-shade: #1e2023;
     --ion-color-light-tint: #383a3e;
-  }
+  } */
 
-  /*
+/*
    * iOS Dark Theme
    * -------------------------------------------
    */
 
-  .ios body {
+/* .ios body {
     --ion-background-color: #000000;
     --ion-background-color-rgb: 0,0,0;
 
@@ -182,15 +191,14 @@ http://ionicframework.com/docs/theming/ */
     --ion-toolbar-background: #0d0d0d;
 
     --ion-item-background: #000000;
-  }
+  } */
 
-
-  /*
+/*
    * Material Design Dark Theme
    * -------------------------------------------
    */
 
-  .md body {
+/* .md body {
     --ion-background-color: #121212;
     --ion-background-color-rgb: 18,18,18;
 
@@ -225,4 +233,4 @@ http://ionicframework.com/docs/theming/ */
 
     --ion-tab-bar-background: #1f1f1f;
   }
-}
+} */
