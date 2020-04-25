@@ -88,21 +88,9 @@ $color: #e74c3c;
   }
   //   height: 100vh;
 }
-// .selection-list {
-//   margin-bottom: 8px;
-//   .selection-card {
-//     background-color: #fff;
-//     display: inline-block;
-//     font-size: 20px;
-//     padding: 2px 16px;
-//     margin-right: 16px;
-//     border-radius: 20px;
-//     border: 2px solid $color;
-//     cursor: pointer;
-//     //   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-//   }
-// }
-// .selection-card.active {
-//   color: #fff;
-//   background-color: $color;
-// }
+
+.album-list {
+  overflow-y: auto;
+  padding: 16px;
+  height: 100%;
+}

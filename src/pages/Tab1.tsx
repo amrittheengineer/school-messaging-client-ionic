@@ -1,24 +1,23 @@
-import React from "react";
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonIcon,
-} from "@ionic/react";
-import ExploreContainer from "../components/ExploreContainer";
-import "./Tab1.css";
+import React, { useContext, useEffect } from "react";
+import { IonContent, IonPage, IonIcon } from "@ionic/react";
+import "./Tab.css";
 import { home, search, filter } from "ionicons/icons";
+import { GlobalStateContext } from "../context/GlobalStateContext";
+import Constant from "../Constant";
+import { RouteComponentProps } from "react-router";
+const { timeSince } = Constant;
 
-const Tab1: React.FC = () => {
+interface Props {
+  history: RouteComponentProps;
+}
+
+const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
+  const classAnnouncements = useContext(GlobalStateContext)?.classAnnouncements;
+  useEffect(() => {
+    console.log(classAnnouncements?.length);
+  }, [classAnnouncements]);
   return (
     <IonPage>
-      {/* <IonHeader>
-        <IonToolbar>
-          <IonTitle>Tab 1</IonTitle>
-        </IonToolbar>
-      </IonHeader> */}
       <IonContent>
         <div className="page-container">
           <div className="header">
@@ -35,23 +34,19 @@ const Tab1: React.FC = () => {
           </div>
           <div className="body">
             <div className="announcement-list">
-              <div className="school-card">
-                <div className="card-title">Science</div>
-                <div className="card-message">
-                  Tomorrow you have a test on Quantum Physics
+              {classAnnouncements?.map((announcemnent) => (
+                <div
+                  className="school-card"
+                  key={announcemnent.id}
+                  onClick={() => props.history.push("/newpage")}
+                >
+                  <div className="card-title">{announcemnent.subject}</div>
+                  <div className="card-message">{announcemnent.message}</div>
+                  <div className="author">
+                    {timeSince(announcemnent.timeStamp)}
+                  </div>
                 </div>
-                <div className="author">2 hrs ago</div>
-              </div>
-              <div className="school-card">
-                <div className="card-title">Science</div>
-                <div className="card-message">
-                  Tomorrow you have a test on Quantum Physics Tomorrow you have
-                  a test on Quantum Physics Tomorrow you have a test on Quantum
-                  Physics Tomorrow you have a test on Quantum Physics Tomorrow
-                  you have a test on Quantum Physics
-                </div>
-                <div className="author">2 hrs ago</div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

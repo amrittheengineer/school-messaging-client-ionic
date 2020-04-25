@@ -109,4 +109,10 @@
       -ms-flex: 1;
           flex: 1;
 }
-/*# sourceMappingURL=Tab1.css.map */
+
+.album-list {
+  overflow-y: auto;
+  padding: 16px;
+  height: 100%;
+}
+/*# sourceMappingURL=Tab.css.map */
