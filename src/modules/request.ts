@@ -15,7 +15,7 @@ const request = function (apiPath: string, options: any) {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Content-Type": "application/json",
-      mode: "cors",
+      // mode: "cors",
     },
   });
   console.log("Making request");

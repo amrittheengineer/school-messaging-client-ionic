@@ -1,41 +1,12 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios, { Canceler, AxiosResponse } from "axios";
 import request from "../modules/request";
-
-interface GlobalStateContextInterface {
-  user: User | null;
-  setUser: (user: User) => void;
-  classAnnouncements: Array<ClassAnnouncement>;
-  updateClassAnnouncements: (callback: () => void) => void;
-  announcements: Array<Announcement>;
-  updateAnnouncements: (callback: () => void) => void;
-}
-
-interface User {
-  name: string;
-  phone: string;
-  batchId: string;
-}
-
-interface ClassAnnouncement extends Broadcast {
-  subject: string;
-}
-interface Announcement extends Broadcast {
-  photos: Array<string> | null;
-  videos: Array<string> | null;
-  url: Array<URLObject>;
-}
-interface URLObject {
-  thumbnail: string;
-  url: string;
-  title: string | null;
-}
-
-interface Broadcast {
-  message: string;
-  timeStamp: number;
-  id: string;
-}
+import {
+  ClassAnnouncement,
+  GlobalStateContextInterface,
+  Announcement,
+  User,
+} from "../interface/TypeInterface";
 
 export const GlobalStateContext = createContext<GlobalStateContextInterface | null>(
   null

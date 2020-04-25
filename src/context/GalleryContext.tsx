@@ -1,34 +1,12 @@
-import React, { useState, useEffect, Provider } from "react";
+import React, { useState, useEffect } from "react";
 import request from "../modules/request";
-import axios, { Canceler, CancelToken } from "axios";
+import axios, { Canceler, CancelToken, AxiosResponse } from "axios";
+import { GalleryContextInterface, Album } from "../interface/TypeInterface";
 
-interface Album {
-  videos: number;
-  date: number;
-  id: string;
-  thumbnail: string;
-  title: string;
-}
-
-interface GalleryContextInterface {
-  currentAlbum: Album | null;
-  setCurrentAlbum: (photos: Album | null) => void;
-  albumPhotos: Array<string>;
-  setAlbumPhotos: (photos: Array<string>) => void;
-  albumVideos: Array<string>;
-  setalbumVideos: (photos: Array<string>) => void;
-  //       albumPhotos,
-  //       setAlbumPhotos,
-  //       albumVideos,
-  //       setalbumVideos,
-}
-
-const GalleryContext = React.createContext<GalleryContextInterface | null>(
+export const GalleryContext = React.createContext<GalleryContextInterface | null>(
   null
 );
-export const GalleryContextProvider = (props: {
-  children: React.ReactChildren;
-}) => {
+export const GalleryContextProvider = (props: { children: any }) => {
   const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
 
   const [albumPhotos, setAlbumPhotos] = useState<Array<string>>([]);
@@ -56,7 +34,27 @@ export const GalleryContextProvider = (props: {
     return () => {
       if (cancel) cancel();
     };
-  }, [currentAlbum!.id]);
+  }, [currentAlbum]);
+
+  const [albumList, setAlbumList] = useState<Array<Album>>([]);
+  useEffect(() => {
+    let cancel: Canceler;
+    let source: CancelToken = new axios.CancelToken((c) => {
+      cancel = c;
+    });
+
+    const { requestPromise } = request("/api/student/albums", {
+      method: "GET",
+      cancelToken: source,
+    });
+
+    requestPromise
+      .then((res: AxiosResponse<{ data: Array<Album> }>) => {
+        // setAlbumList();
+        setAlbumList([...res.data.data]);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   useEffect(() => {
     let cancel: Canceler;
@@ -77,7 +75,7 @@ export const GalleryContextProvider = (props: {
     return () => {
       if (cancel) cancel();
     };
-  }, [currentAlbum!.id]);
+  }, [currentAlbum]);
 
   return (
     <GalleryContext.Provider
@@ -88,6 +86,7 @@ export const GalleryContextProvider = (props: {
         setAlbumPhotos,
         albumVideos,
         setalbumVideos,
+        albumList,
       }}
     >
       {props.children}

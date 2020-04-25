@@ -69,11 +69,12 @@ $color: #e74c3c;
     .author {
       background-color: $color;
       //   align-self: flex-end;
-      padding: 12px;
+      padding: 8px 12px;
       //   flex: 1;
       margin: 12px 0 0 0px;
       color: #fff;
       border-radius: 0 0 16px 16px;
+      // transform: scale(0);
     }
     .card-title {
       //   flex: 1;
@@ -93,4 +94,31 @@ $color: #e74c3c;
   overflow-y: auto;
   padding: 16px;
   height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+
+  .album-card {
+    flex: 1;
+    // min-width: 48%;
+    min-width: 98%;
+    margin: 1%;
+    border-radius: 8px;
+    padding: 4px;
+    background-color: #fff;
+    // border: 1px solid #c1c1c1;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    .album-thumbnail {
+      border-radius: 8px 8px 0 0;
+    }
+    .album-title {
+      font-weight: bold;
+      margin: 8px 0 4px 8px;
+      font-size: 1rem;
+    }
+    .album-date {
+      color: #262626;
+      margin: 0 0 4px 8px;
+      font-size: 0.8rem;
+    }
+  }
 }

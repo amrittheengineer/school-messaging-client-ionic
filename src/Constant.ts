@@ -1,17 +1,19 @@
 const Constant = {
   getStorageURL: (directory: string, fileName: string) =>
-    `https://firebasestorage.googleapis.com/v0/b/st-marys-school-d6378.appspot.com/o/${directory}%2F${fileName}?alt=media`,
-  getTime: (time: number) => {
-    if (time === 0) {
-      return "Just Now";
-    } else if (time < 60) {
-      return `${time} mins ago`;
-    } else if (time < 24 * 60) {
-      return `${Math.floor(time / 60)} hrs ago`;
-    } else {
-      return `${Math.floor(time / 3600)} days ago`;
-    }
-  },
+    `https://firebasestorage.googleapis.com/v0/b/st-marys-school-d6378.appspot.com/o/${encodeURIComponent(
+      directory
+    )}%2F${encodeURIComponent(fileName)}?alt=media`,
+  // getTime: (time: number) => {
+  //   if (time === 0) {
+  //     return "Just Now";
+  //   } else if (time < 60) {
+  //     return `${time} mins ago`;
+  //   } else if (time < 24 * 60) {
+  //     return `${Math.floor(time / 60)} hrs ago`;
+  //   } else {
+  //     return `${Math.floor(time / 3600)} days ago`;
+  //   }
+  // },
   url: "https://st-marys-school-d6378.firebaseapp.com",
   timeSince: (timeStampNum: number) => {
     let timeStamp: Date = new Date(timeStampNum ? timeStampNum : Date.now());
