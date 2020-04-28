@@ -1,24 +1,19 @@
-import React, { useContext, useEffect, ReactComponentElement } from "react";
+import React, { useContext } from "react";
 import { IonContent, IonPage, IonIcon } from "@ionic/react";
 import "./Tab.css";
 import { home, search, filter } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
 import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
-import { Announcement, ClassAnnouncement } from "../interface/TypeInterface";
+import { ClassAnnouncement } from "../interface/TypeInterface";
 import { useSpring, animated } from "react-spring";
-
+import FlatList from "flatlist-react";
 const { timeSince } = Constant;
-
-interface Props {
-  history: RouteComponentProps;
-}
 
 const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
   const classAnnouncements = useContext(GlobalStateContext)?.classAnnouncements;
-  useEffect(() => {
-    console.log(classAnnouncements?.length);
-  }, [classAnnouncements]);
+  const setClassAnnouncements = useContext(GlobalStateContext)
+    ?.setClassAnnouncements;
   return (
     <IonPage>
       <IonContent>
@@ -30,14 +25,40 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
               </div>
               <div className="title">Announcements</div>
               <div className="actions">
-                <IonIcon icon={filter} />
+                <IonIcon
+                  icon={filter}
+                  onClick={() => {
+                    if (setClassAnnouncements && classAnnouncements) {
+                      setClassAnnouncements([
+                        ...classAnnouncements,
+                        ...classAnnouncements,
+                      ]);
+                    }
+                  }}
+                />
                 <IonIcon icon={search} />
               </div>
             </div>
           </div>
           <div className="body">
             <div className="announcement-list">
-              {classAnnouncements?.map(
+              <FlatList
+                list={classAnnouncements ? classAnnouncements : []}
+                renderItem={(announcemnent, index) => (
+                  // <div className="school-card" key={""}>
+                  //   <div className="card-title">{""}</div>
+                  //   <div className="card-message">{"announcemnent.message"}</div>
+                  //   <div className="author">{timeSince(0)}</div>
+                  // </div>
+                  <AnnouncementCard
+                    item={announcemnent}
+                    key={index}
+                    index={index}
+                  />
+                )}
+                renderWhenEmpty={() => <p>Nothing Here</p>}
+              />
+              {/* {classAnnouncements?.map(
                 (announcemnent: ClassAnnouncement, index: number) => (
                   // <div className="school-card" key={""}>
                   //   <div className="card-title">{""}</div>
@@ -45,12 +66,12 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
                   //   <div className="author">{timeSince(0)}</div>
                   // </div>
                   <AnnouncementCard
-                    announcement={announcemnent}
-                    key={announcemnent.id}
-                    delay={index}
+                    item={announcemnent}
+                    key={index}
+                    index={index}
                   />
                 )
-              )}
+              )} */}
             </div>
           </div>
         </div>
@@ -60,19 +81,19 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
 };
 
 const AnnouncementCard: React.FC<{
-  announcement: ClassAnnouncement;
-  delay: number;
-}> = ({ announcement, delay }) => {
+  item: ClassAnnouncement;
+  index: number;
+}> = ({ item, index }) => {
   const props = useSpring({
     from: { transform: "scale(0.95)", opacity: 0 },
     to: { transform: "scale(1)", opacity: 1 },
-    delay: delay * 200,
+    delay: (typeof index === "string" ? parseInt(index) : index) * 200,
   });
   return (
     <animated.div style={props} className="school-card">
-      <div className="card-title">{announcement.subject}</div>
-      <div className="card-message">{announcement.message}</div>
-      <div className="author">{`${timeSince(announcement.timeStamp)}`}</div>
+      <div className="card-title">{item.subject}</div>
+      <div className="card-message">{item.message}</div>
+      <div className="author">{`${timeSince(item.timeStamp)}`}</div>
     </animated.div>
   );
 };

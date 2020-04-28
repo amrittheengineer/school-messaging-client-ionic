@@ -65,6 +65,10 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
     }
   };
 
+  // setInterval(() => {
+  //   setClassAnnouncements((prev) => [...prev, ...prev]);
+  // }, 10000);
+
   useEffect(() => {
     let cancel1: Canceler, cancel2: Canceler;
     if (user && user.batchId) {
@@ -128,6 +132,7 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         updateClassAnnouncements,
         announcements,
         updateAnnouncements,
+        setClassAnnouncements,
       }}
     >
       {props.children}

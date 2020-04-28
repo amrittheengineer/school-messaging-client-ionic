@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Redirect, Route } from "react-router-dom";
+import { useHistory } from "react-router";
 import {
   IonApp,
   IonIcon,
@@ -8,7 +9,6 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
-  IonPage,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { home, image, chatbubbleEllipses } from "ionicons/icons";
@@ -37,49 +37,77 @@ import "./theme/variables.css";
 import { GlobalStateContextProvider } from "./context/GlobalStateContext";
 import { GalleryContextProvider } from "./context/GalleryContext";
 import Album from "./pages/Album";
+import { Plugins } from "@capacitor/core";
 
-const TTT: React.FC = () => (
-  <IonPage>
-    <p>Hello World</p>
-  </IonPage>
-);
+const Application = Plugins.App;
+const Toast = Plugins.Toast;
 
-const App: React.FC = () => (
-  <GlobalStateContextProvider>
-    <GalleryContextProvider>
-      <IonApp>
-        <IonReactRouter>
-          <IonTabs>
-            <IonRouterOutlet>
-              <Route path="/tab1" component={Tab1} exact={true} />
-              <Route path="/tab2" component={Tab2} exact={true} />
-              <Route path="/gallery" component={Tab3} />
-              <Route path="/album" component={Album} />
-              <Route
-                path="/"
-                render={() => <Redirect to="/tab1" />}
-                exact={true}
-              />
-            </IonRouterOutlet>
-            <IonTabBar slot="bottom">
-              <IonTabButton tab="tab1" href="/tab1">
-                <IonIcon icon={home} />
-                <IonLabel>Announcements</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="tab2" href="/tab2">
-                <IonIcon icon={chatbubbleEllipses} />
-                <IonLabel>Posts</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="tab3" href="/gallery">
-                <IonIcon icon={image} />
-                <IonLabel>Gallery</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
-          </IonTabs>
-        </IonReactRouter>
-      </IonApp>
-    </GalleryContextProvider>
-  </GlobalStateContextProvider>
-);
+const App: React.FC = () => {
+  useEffect(() => {
+    Application.addListener("backButton", (event) => {
+      Application.exitApp();
+    });
+
+    return () => {
+      Application.removeAllListeners();
+    };
+  }, []);
+
+  const [currentTab, setCurrentTab] = useState<string>("");
+
+  return (
+    <GlobalStateContextProvider>
+      <GalleryContextProvider>
+        <IonApp>
+          <IonReactRouter>
+            <IonTabs
+              onIonTabsDidChange={(event) => {
+                setCurrentTab(event.detail.tab);
+              }}
+            >
+              <IonRouterOutlet>
+                <Route path="/tab1" component={Tab1} exact={true} />
+                <Route path="/tab2" component={Tab2} exact={true} />
+                <Route path="/gallery" component={Tab3} />
+                <Route path="/album/:id" component={Album} exact={true} />
+                <Route
+                  path="/"
+                  render={() => <Redirect to="/tab1" />}
+                  exact={true}
+                />
+              </IonRouterOutlet>
+              <IonTabBar slot="bottom">
+                <IonTabButton
+                  disabled={currentTab === "tab1"}
+                  tab="tab1"
+                  href="/tab1"
+                >
+                  <IonIcon icon={home} />
+                  <IonLabel>Announcements</IonLabel>
+                </IonTabButton>
+                <IonTabButton
+                  disabled={currentTab === "tab2"}
+                  tab="tab2"
+                  href="/tab2"
+                >
+                  <IonIcon icon={chatbubbleEllipses} />
+                  <IonLabel>Posts</IonLabel>
+                </IonTabButton>
+                <IonTabButton
+                  disabled={currentTab === "gallery"}
+                  tab="gallery"
+                  href="/gallery"
+                >
+                  <IonIcon icon={image} />
+                  <IonLabel>Gallery</IonLabel>
+                </IonTabButton>
+              </IonTabBar>
+            </IonTabs>
+          </IonReactRouter>
+        </IonApp>
+      </GalleryContextProvider>
+    </GlobalStateContextProvider>
+  );
+};
 
 export default App;
