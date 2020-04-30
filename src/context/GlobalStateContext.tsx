@@ -14,6 +14,7 @@ export const GlobalStateContext = createContext<GlobalStateContextInterface | nu
 
 export const GlobalStateContextProvider = (props: { children: any }) => {
   const [announcements, setAnnouncements] = useState<Array<Announcement>>([]);
+  const [hideTabBar, setHideTabBar] = useState<boolean>(false);
   const [classAnnouncements, setClassAnnouncements] = useState<
     Array<ClassAnnouncement>
   >([]);
@@ -22,6 +23,8 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
     phone: "6385141855",
     batchId: "03ee1740-7b40-11ea-881d-4f34ce240b83",
   });
+
+
 
   const updateAnnouncements = (callback: () => void) => {
     if (user && user.batchId) {
@@ -133,6 +136,8 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         announcements,
         updateAnnouncements,
         setClassAnnouncements,
+        hideTabBar,
+        setHideTabBar,
       }}
     >
       {props.children}

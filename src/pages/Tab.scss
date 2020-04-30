@@ -90,30 +90,106 @@ $color: #e74c3c;
   //   height: 100vh;
 }
 
-.album-list {
-  overflow-y: auto;
-  padding: 16px;
+.album-progress-container {
+  display: flex;
+  height: 100%;
+  // background-color: #c1c1c1;
+  .album-progress {
+    justify-self: center;
+    align-self: center;
+    text-align: center;
+    flex: 1;
+    .progress-image {
+      width: 35%;
+    }
+  }
+}
+.image-thumbnail-container {
+  margin: 1%;
+  display: inline-block;
+  width: 48%;
+  .image-thumbnail {
+    object-fit: cover;
+    height: 180px;
+  }
+  border: 1px solid #000;
+}
+.album-video-player {
+  // width: 100%;
+  width: 100%;
+}
+.video-player {
+  background-color: #000;
   height: 100%;
   display: flex;
-  flex-wrap: wrap;
-
-  .album-card {
-    flex: 1;
-    // min-width: 48%;
-    min-width: 98%;
-    margin: 1%;
-    border-radius: 8px;
-    padding: 4px;
-    background-color: #fff;
-    // border: 1px solid #c1c1c1;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-    .album-thumbnail {
-      border-radius: 8px 8px 0 0;
+  flex: 1;
+}
+.video-card {
+  display: flex;
+  padding: 24px 8px;
+  margin: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  .play-icon {
+    width: 64px;
+    height: 64px;
+    color: $color;
+    align-self: center;
+  }
+  .video-meta {
+    .download-icon {
+      color: $color;
+      align-self: flex-start;
+      // width: 32px;
+      // height: 32px;
+      // color: $color;
     }
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 8px;
+    // background-color: #c1c1c1;
+    .video-title {
+      // overflow-wrap: break-word;
+      word-break: break-all;
+      font-size: 1rem;
+      color: $color;
+    }
+    .video-date {
+      // background-color: #c1c1c1;
+      font-size: 0.8rem;
+      color: #262626;
+    }
+  }
+}
+.gallery-image-container {
+  display: flex;
+  background-color: #000;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  .gallery-image {
+    flex: 1;
+    touch-action: auto;
+    // align-self: center;
+    justify-content: center;
+  }
+}
+.album-card {
+  display: flex;
+  margin: 8px;
+  .album-thumbnail {
+    align-self: center;
+    border-radius: 8px 8px 0 0;
+  }
+  .album-meta {
+    flex: 1;
     .album-title {
       font-weight: bold;
       margin: 8px 0 4px 8px;
-      font-size: 1rem;
+      font-size: 1.5rem;
+      color: $color;
     }
     .album-date {
       color: #262626;
@@ -121,4 +197,9 @@ $color: #e74c3c;
       font-size: 0.8rem;
     }
   }
+}
+.album-list {
+  overflow-y: auto;
+  padding: 16px;
+  width: 100%;
 }

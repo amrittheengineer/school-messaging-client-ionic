@@ -3,8 +3,9 @@ import {
   IonContent,
   IonIcon,
   IonPage,
-  IonRouterOutlet,
-  IonRouterLink,
+  IonCard,
+  IonImg,
+  IonThumbnail,
 } from "@ionic/react";
 import "./Tab.css";
 import { image, filter, search } from "ionicons/icons";
@@ -47,23 +48,7 @@ const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
                 <AlbumCard
                   album={album}
                   onClick={() => {
-                    setCurremtAlbum((previousState) => {
-                      if (previousState && previousState.id === album.id) {
-                        return previousState;
-                      } else {
-                        resetStorageRef();
-                        console.log("Reset Album");
-
-                        return album;
-                      }
-                    });
-                    // console.log(album.id);
-
-                    history.push(
-                      "/album/" + album.id
-                      // {},
-                      // { animate: true, animation: "forward" }
-                    );
+                    history.push("/album/" + album.id, { data: "ciunu" });
                   }}
                   key={album.id}
                   delay={index}
@@ -83,22 +68,37 @@ const AlbumCard: React.FC<{
   delay: number;
   onClick: () => void;
 }> = ({ album, delay, onClick }) => {
+
   const props = useSpring({
     from: { transform: "scale(0.95)", opacity: 0 },
     to: { transform: "scale(1)", opacity: 1 },
     delay: delay * 200,
   });
   return (
-    <animated.div style={props} onClick={onClick} className="album-card">
-      {/* <img
+
+    <animated.div className="album-card-wrapper">
+      <IonCard routerLink={"/album/" + album.id} routerDirection="forward" >
+        {/* <img
         className="album-thumbnail"
         src={getStorageURL(album.id, album.thumbnail)}
         alt=""
       /> */}
-      <div className="album-title">{album.title}</div>
-      <div className="album-date">{`${new Date(album.date)
-        .toDateString()
-        .slice(4)}`}</div>
+        <div className="album-card">
+
+          <div className="album-thumbnail">
+            <IonThumbnail>
+              <IonImg src={getStorageURL(album.id, album.thumbnail)} />
+            </IonThumbnail>
+          </div>
+          <div className="album-meta">
+
+            <div className="album-title">{album.title}</div>
+            <div className="album-date">{`${new Date(album.date)
+              .toDateString()
+              .slice(4)}`}</div>
+          </div>
+        </div>
+      </IonCard>
     </animated.div>
   );
 };

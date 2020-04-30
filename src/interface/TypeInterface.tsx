@@ -8,6 +8,8 @@ export interface GlobalStateContextInterface {
   updateClassAnnouncements: (callback: () => void) => void;
   announcements: Array<Announcement>;
   updateAnnouncements: (callback: () => void) => void;
+  hideTabBar: boolean;
+  setHideTabBar: Dispatch<SetStateAction<boolean>>;
 }
 // interface Props<T> {
 //   list: T[];
@@ -46,6 +48,16 @@ export interface GlobalStateContextInterface {
 //   paginationLoadingIndicator?: InfiniteLoaderProps['loadingIndicator'];
 //   paginationLoadingIndicatorPosition?: InfiniteLoaderProps['loadingIndicatorPosition'];
 // }
+
+export interface Video {
+  url: string;
+  name: string;
+  timeStamp: string;
+}
+export interface Photo {
+  url: string;
+  name: string;
+}
 export interface Album {
   videos: number;
   date: number;
@@ -55,15 +67,18 @@ export interface Album {
 }
 
 export interface GalleryContextInterface {
-  currentAlbum: Album | null;
-  setCurrentAlbum: Dispatch<SetStateAction<Album | null>>;
-  albumPhotos: Array<string>;
-  setAlbumPhotos: Dispatch<SetStateAction<Array<string>>>; //(photos: Array<string>) => void;
-  albumVideos: Array<string>;
-  setalbumVideos: Dispatch<SetStateAction<Array<string>>>; //(photos: Array<string>) => void;
+  currentAlbum: string;
+  setCurrentAlbum: Dispatch<SetStateAction<string>>;
+  albumPhotos: Array<Photo>;
+  setAlbumPhotos: Dispatch<SetStateAction<Array<Photo>>>; //(photos: Array<string>) => void;
+  albumVideos: Array<Video>;
+  setalbumVideos: Dispatch<SetStateAction<Array<Video>>>; //(photos: Array<string>) => void;
   albumList: Array<Album>;
   resetStorageRef: () => void;
   loadFromStorage: (directory: string) => void;
+  contentLoading: boolean;
+  hasMoreItems: boolean;
+  downloadFile: (url: string, name: string) => Promise<any>;
 }
 
 export interface User {

@@ -110,43 +110,171 @@
           flex: 1;
 }
 
-.album-list {
-  overflow-y: auto;
-  padding: 16px;
+.album-progress-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+}
+
+.album-progress-container .album-progress {
+  -ms-grid-column-align: center;
+      justify-self: center;
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+  text-align: center;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+
+.album-progress-container .album-progress .progress-image {
+  width: 35%;
+}
+
+.image-thumbnail-container {
+  margin: 1%;
+  display: inline-block;
+  width: 48%;
+  border: 1px solid #000;
+}
+
+.image-thumbnail-container .image-thumbnail {
+  -o-object-fit: cover;
+     object-fit: cover;
+  height: 180px;
+}
+
+.album-video-player {
+  width: 100%;
+}
+
+.video-player {
+  background-color: #000;
   height: 100%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-}
-
-.album-list .album-card {
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
-  min-width: 98%;
-  margin: 1%;
-  border-radius: 8px;
-  padding: 4px;
-  background-color: #fff;
+}
+
+.video-card {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 24px 8px;
+  margin: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
   -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
           box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 
-.album-list .album-card .album-thumbnail {
+.video-card .play-icon {
+  width: 64px;
+  height: 64px;
+  color: #e74c3c;
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+}
+
+.video-card .video-meta {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-left: 8px;
+}
+
+.video-card .video-meta .download-icon {
+  color: #e74c3c;
+  -ms-flex-item-align: start;
+      align-self: flex-start;
+}
+
+.video-card .video-meta .video-title {
+  word-break: break-all;
+  font-size: 1rem;
+  color: #e74c3c;
+}
+
+.video-card .video-meta .video-date {
+  font-size: 0.8rem;
+  color: #262626;
+}
+
+.gallery-image-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  background-color: #000;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  width: 100%;
+  height: 100vh;
+}
+
+.gallery-image-container .gallery-image {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -ms-touch-action: auto;
+      touch-action: auto;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.album-card {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 8px;
+}
+
+.album-card .album-thumbnail {
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
   border-radius: 8px 8px 0 0;
 }
 
-.album-list .album-card .album-title {
-  font-weight: bold;
-  margin: 8px 0 4px 8px;
-  font-size: 1rem;
+.album-card .album-meta {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
 }
 
-.album-list .album-card .album-date {
+.album-card .album-meta .album-title {
+  font-weight: bold;
+  margin: 8px 0 4px 8px;
+  font-size: 1.5rem;
+  color: #e74c3c;
+}
+
+.album-card .album-meta .album-date {
   color: #262626;
   margin: 0 0 4px 8px;
   font-size: 0.8rem;
+}
+
+.album-list {
+  overflow-y: auto;
+  padding: 16px;
+  width: 100%;
 }
 /*# sourceMappingURL=Tab.css.map */

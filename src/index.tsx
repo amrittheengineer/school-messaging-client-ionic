@@ -2,8 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import { setupConfig, createAnimation } from "@ionic/react";
+import { setupConfig } from "@ionic/react";
 
+// setupConfig({
+//     hardwareBackButton: true,
+// });
 // setupConfig({
 //   animated: false,
 // });

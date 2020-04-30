@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
 import request from "../modules/request";
 import axios, { Canceler, CancelToken, AxiosResponse } from "axios";
-import { GalleryContextInterface, Album } from "../interface/TypeInterface";
+import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer';
+import {
+  GalleryContextInterface,
+  Album,
+  Video,
+  Photo
+} from "../interface/TypeInterface";
 
 import firebase from "firebase/app";
+import { File } from '@ionic-native/file'
+
 // import "firebase/firestore";
 // import "firebase/auth";
 import "firebase/storage";
@@ -22,6 +30,8 @@ const firebaseConfig = {
 
 const app = firebase.initializeApp(firebaseConfig);
 const storage = app.storage();
+
+
 
 // storage
 //   .refFromURL(
@@ -47,13 +57,13 @@ export const GalleryContext = React.createContext<GalleryContextInterface | null
   null
 );
 export const GalleryContextProvider = (props: { children: any }) => {
-  const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
+  const [currentAlbum, setCurrentAlbum] = useState<string>("");
+  const [contentLoading, setContentLoading] = useState<boolean>(false);
+  const [hasMoreItems, setHasMoreItems] = useState<boolean>(true);
 
-  const [albumPhotos, setAlbumPhotos] = useState<Array<string>>([]);
-  const [albumVideos, setalbumVideos] = useState<Array<string>>([]);
-  const albumStorageRef = React.useRef<firebase.storage.ListResult | null>(
-    null
-  );
+  const [albumPhotos, setAlbumPhotos] = useState<Array<Photo>>([]);
+  const [albumVideos, setalbumVideos] = useState<Array<Video>>([]);
+  const albumStorageRef = React.useRef<string>("");
   // useEffect(() => {
   //   let cancel: Canceler;
   //   if (currentAlbum !== null) {
@@ -80,65 +90,128 @@ export const GalleryContextProvider = (props: { children: any }) => {
   // }, [currentAlbum]);
 
   useEffect(() => {
-    if (currentAlbum) loadFromStorage(currentAlbum.id);
+    if (currentAlbum) {
+      // .then((val) => {
+      //   console.log("Resolved", val);
+      // })
+      // .catch((err) => {
+      //   console.log("Rejected", err);
+      // });
+
+      loadFromStorage(currentAlbum);
+    }
   }, [currentAlbum]);
 
   const resetStorageRef = () => {
     setAlbumPhotos([]);
     setalbumVideos([]);
-    albumStorageRef.current = null;
+    setHasMoreItems(true);
+    albumStorageRef.current = "";
   };
 
+  const downloadFile = (url: string, name: string) => {
+    let f: FileTransferObject = FileTransfer.create();
+    return new Promise((resolve, reject) => {
+
+      f.download(url, "School App/" + currentAlbum + "/" + name, true).then(entry => {
+        alert(entry.toURL());
+        resolve(entry);
+      }).catch(err => {
+        alert(err.message);
+        reject(err);
+      })
+    })
+  }
+
   const loadFromStorage = async (directory: string) => {
-    if (albumStorageRef.current === null) {
-      albumStorageRef.current = await storage
+    console.log("Called");
+    let data: firebase.storage.ListResult;
+    if (contentLoading) {
+      console.log("Rejected Call");
+
+      return;
+    }
+    setContentLoading(true);
+    if (albumStorageRef.current === "") {
+      data = await storage
         .refFromURL(`gs://st-marys-school-d6378.appspot.com/${directory}`)
         .list({
           maxResults: 8,
         });
     } else {
-      albumStorageRef.current = await storage
+      console.log("[LOG] albumStorageRef ", albumStorageRef.current);
+      data = await storage
         .refFromURL(`gs://st-marys-school-d6378.appspot.com/${directory}`)
         .list({
           maxResults: 8,
-          pageToken: albumStorageRef.current.nextPageToken,
+          pageToken: albumStorageRef.current,
         });
     }
 
-    let data = albumStorageRef.current?.items.map(
+    let dataFetchPromises = data.items.map(
       async (item: firebase.storage.Reference) => {
-        let meta = item.getMetadata();
-        let url = item.getDownloadURL();
+        let meta = await item.getMetadata();
+        let url = await item.getDownloadURL();
 
-        return Promise.all([meta, url]).then(([meta, url]) => {
-          // console.log([meta.contentType]);
-          // console.log("DDDAAATTTAAA",
-          return {
-            type: meta.contentType,
-            url,
-          };
-          // );
-          // return val;
+        return {
+          type: meta.contentType,
+          url,
+          name: meta.name,
+          timeStamp: meta.timeCreated,
+        };
+        // return Promise.all([meta, url]).then(([meta, url]) => {
+        //   // console.log(url);
+        //   // console.log("DDDAAATTTAAA",
+        //   // );
+        //   // return val;
+        // });
+      }
+    );
+    Promise.all(dataFetchPromises).then(
+      (
+        d: Array<{ type: string; url: string; name: string; timeStamp: string }>
+      ) => {
+        let images: Array<Photo> = [];
+        let videos: Array<Video> = [];
+
+        d.forEach(
+          (media: {
+            type: string;
+            url: string;
+            name: string;
+            timeStamp: string;
+          }) => {
+            if (media.type.indexOf("image") !== -1) {
+              images.push({ url: media.url, name: media.name });
+            } else if (media.type.indexOf("video") !== -1) {
+              console.log("[LOG] Video", media.name);
+              videos.push({
+                url: media.url,
+                name: media.name,
+                timeStamp: media.timeStamp,
+              });
+            }
+          }
+        );
+
+        setContentLoading(false);
+
+        if (data.nextPageToken === undefined) {
+          setHasMoreItems(false);
+        } else {
+          albumStorageRef.current = data.nextPageToken!;
+        }
+
+        // let images = d.filter((media: {type: string, url: string}) => media.type.indexOf("image") !== -1);
+        // let videos = d.filter((media: {type: string, url: string}) => media.type.indexOf("video") !== -1);
+        setAlbumPhotos((prev) => [...prev, ...images]);
+        setalbumVideos((prev) => {
+          console.log("[LOG] Video ", videos);
+
+          return [...prev, ...videos];
         });
       }
     );
-    Promise.all(data).then((d: Array<{ type: string; url: string }>) => {
-      let images: Array<string> = [];
-      let videos: Array<string> = [];
-
-      d.forEach((media: { type: string; url: string }) => {
-        if (media.type.indexOf("image") !== -1) {
-          images.push(media.url);
-        } else if (media.type.indexOf("video") !== -1) {
-          images.push(media.url);
-        }
-      });
-
-      // let images = d.filter((media: {type: string, url: string}) => media.type.indexOf("image") !== -1);
-      // let videos = d.filter((media: {type: string, url: string}) => media.type.indexOf("video") !== -1);
-      setAlbumPhotos((prev) => [...prev, ...images]);
-      setAlbumPhotos((prev) => [...prev, ...videos]);
-    });
 
     // .then((list) => {
     //       // alert(list.items.map((d) => d.getDownloadURL()));
@@ -150,6 +223,10 @@ export const GalleryContextProvider = (props: { children: any }) => {
     //       });
     //     })
   };
+
+  useEffect(() => {
+    console.log("Content loading ", contentLoading);
+  }, [contentLoading]);
 
   const [albumList, setAlbumList] = useState<Array<Album>>([]);
   useEffect(() => {
@@ -175,26 +252,26 @@ export const GalleryContextProvider = (props: { children: any }) => {
     };
   }, []);
 
-  useEffect(() => {
-    let cancel: Canceler;
-    if (currentAlbum !== null) {
-      setalbumVideos([]);
-      let source: CancelToken = new axios.CancelToken((c) => {
-        cancel = c;
-      });
-      const { requestPromise } = request(
-        "/api/student/get-videos/" + currentAlbum.id + "/1",
-        { method: "GET", cancelToken: source }
-      );
-      requestPromise.then((res: { data: { videos: Array<string> } }) => {
-        const { videos } = res.data;
-        setalbumVideos([...videos]);
-      });
-    }
-    return () => {
-      if (cancel) cancel();
-    };
-  }, [currentAlbum]);
+  // useEffect(() => {
+  // let cancel: Canceler;
+  // if (currentAlbum !== null) {
+  //   setalbumVideos([]);
+  //   let source: CancelToken = new axios.CancelToken((c) => {
+  //     cancel = c;
+  //   });
+  //   const { requestPromise } = request(
+  //     "/api/student/get-videos/" + currentAlbum.id + "/1",
+  //     { method: "GET", cancelToken: source }
+  //   );
+  //   requestPromise.then((res: { data: { videos: Array<string> } }) => {
+  //     const { videos } = res.data;
+  //     setalbumVideos([...videos]);
+  //   });
+  // }
+  // return () => {
+  //   if (cancel) cancel();
+  // };
+  // }, [currentAlbum]);
 
   return (
     <GalleryContext.Provider
@@ -208,6 +285,9 @@ export const GalleryContextProvider = (props: { children: any }) => {
         albumList,
         resetStorageRef,
         loadFromStorage,
+        contentLoading,
+        hasMoreItems,
+        downloadFile
       }}
     >
       {props.children}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   IonPage,
   IonToolbar,
@@ -9,38 +9,65 @@ import {
   IonRouterOutlet,
   IonSlide,
   IonSlides,
+  IonSpinner,
+  IonThumbnail,
+  IonVirtualScroll,
+  IonInfiniteScroll,
+  IonButton,
+  IonIcon,
+  IonImg,
 } from "@ionic/react";
-import { IonReactRouter } from "@ionic/react-router";
 
+// import { useFilesystem, base64FromPath } from '@ionic/react-hooks/filesystem';
 // import { NativePageTransitions } from "@ionic-native/native-page-transitions";
 import { RouteComponentProps, Route, Redirect } from "react-router";
 import { GalleryContext } from "../context/GalleryContext";
 import { Plugins } from "@capacitor/core";
+import { Video } from "../interface/TypeInterface";
 import FlatList from "flatlist-react";
+import { playCircle } from "ionicons/icons";
+import { useSpring, animated } from "react-spring";
+import { GlobalStateContext } from "../context/GlobalStateContext";
+import { Capacitor } from '@capacitor/core'
 
 const Application = Plugins.App;
+const { convertFileSrc } = Capacitor;
+// const { writeFile } = useFilesystem();
 
 const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
   match,
   history,
 }) => {
   const context = useContext(GalleryContext);
+  const setHideTabBar = useContext(GlobalStateContext)!.setHideTabBar;
 
   const [selected, setSelected] = useState<string>("photos");
 
   useEffect(() => {
     Application.removeAllListeners();
 
+    setHideTabBar(true);
+
+    context?.setCurrentAlbum((previousAlbum) => {
+      if (previousAlbum === match.params.id) {
+        return previousAlbum;
+      } else {
+        context?.resetStorageRef();
+        return match.params.id;
+      }
+    });
+
     // setTimeout(() => {
     //   setsel("videos");
     // }, 5000);
 
-    console.log(match.params.id);
+    // console.log(match.params.id);
 
     return () => {
       Application.addListener("backButton", () => {
         Application.exitApp();
       });
+      setHideTabBar(false);
     };
   }, []);
 
@@ -83,65 +110,138 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
         />
       </IonReactRouter> */}
         {selected === "photos" ? (
-          <IonContent>
+          <FlatList
+            list={context ? context.albumPhotos : []}
+            renderItem={(image, ind) => {
+              return (
+                <div key={`${ind}`} onClick={() => {
+                  history.push("/image-gallery/" + ind);
+                }} className="image-thumbnail-container">
+                  <IonImg src={image.url} className="image-thumbnail" />
+                </div>
+              );
+            }}
+            renderWhenEmpty={() => {
+              if (context?.hasMoreItems) return <Loading />;
+              else return <EmptyComponent />;
+            }}
+            // pagination={true}
+            hasMoreItems={context?.hasMoreItems}
+            loadMoreItems={() => {
+              context?.loadFromStorage(match.params.id);
+            }}
+          />
+        ) : (
             <FlatList
-              list={context ? context.albumPhotos : []}
-              renderItem={(url, ind) => {
-                return <img src={url} key={`${ind}`} />;
+              list={context ? context.albumVideos : []}
+              renderItem={(video, ind) => {
+                return (
+                  <VideoCard
+                    video={video}
+                    delay={ind}
+                    key={ind}
+                    onClick={() => {
+                      setHideTabBar(true);
+                      history.push("/video-player/?url=" + encodeURIComponent(video.url));
+                    }}
+                    downloadVideo={() => {
+                      window.location = video.url;
+                      // var link = document.createElement("a");
+                      // if (link.download !== undefined) {
+                      //   link.setAttribute("href", video.url);
+                      //   link.setAttribute("target", "_blank");
+                      //   link.setAttribute("title", video.name);
+                      //   // link.style.visibility = 'hidden';
+                      //   link.style.visibility = 'hidden';
+                      //   document.body.appendChild(link);
+                      //   link.click();
+                      //   document.body.removeChild(link);
+                      // }
+                      // let fileEntry = await context!.downloadFile(video.url, video.name).catch(err => ({ toURL: () => "Download failed." }));
+                      // alert(fileEntry.toURL());
+                    }}
+                  />
+                );
+                // return <p key={`${ind}`}>{url}</p>;
               }}
-              renderWhenEmpty={() => <p>Nothing Here</p>}
-              hasMoreItems={true}
+              renderWhenEmpty={() => {
+                if (context?.hasMoreItems) return <Loading />;
+                else return <EmptyComponent />;
+              }}
+              // pagination={true}
+              hasMoreItems={context?.hasMoreItems}
               loadMoreItems={() => {
-                console.log("Called API");
-
+                // console.log("Called API");
                 context?.loadFromStorage(match.params.id);
               }}
             />
-          </IonContent>
-        ) : (
-          <Videos />
-        )}
+          )}
       </IonContent>
     </IonPage>
   );
 };
 
-const Photos: React.FC = (props) => {
-  const context = useContext(GalleryContext);
-
+const EmptyComponent: React.FC = () => {
   return (
-    <IonContent>
-      <FlatList
-        list={context ? context.albumPhotos : []}
-        renderItem={(url, ind) => {
-          return <img src={url} key={`${ind}`} />;
-        }}
-        renderWhenEmpty={() => <p>Nothing Here</p>}
-        hasMoreItems={true}
-        loadMoreItems={() => {
-          context?.loadFromStorage("");
-        }}
-      />
-      {/* <div style={{ backgroundColor: "#c1c1c1" }}>
-        {context?.albumPhotos.map((d, ind) => (
-          <img src={d} key={`${ind}`} />
-        ))}
-      </div> */}
-    </IonContent>
-  );
-};
-const Videos: React.FC = (props) => {
-  const context = useContext(GalleryContext);
-
-  return (
-    <IonContent>
-      <div style={{ backgroundColor: "#c1c1c1" }}>
-        {context?.albumVideos.map((d, ind) => (
-          <div key={`${ind}`}>{d}</div>
-        ))}
+    <div className="album-progress-container">
+      <div className="album-progress">
+        <img
+          className="progress-image"
+          src={require("../images/nothing.svg")}
+        />
+        <div>Nothing Here</div>
       </div>
-    </IonContent>
+    </div>
   );
 };
+const Loading: React.FC = () => {
+  return (
+    <div className="album-progress-container">
+      <div className="album-progress">
+        <IonSpinner />
+        <div>Loading</div>
+      </div>
+    </div>
+  );
+};
+
+const VideoCard: React.FC<{
+  video: Video;
+  delay: number;
+  onClick: () => void;
+  downloadVideo: () => void;
+}> = ({ video, delay, onClick, downloadVideo }) => {
+  const downloadElement = useRef<HTMLAnchorElement | null>(null);
+  const props = useSpring({
+    from: { transform: "scale(0.95)", opacity: 0 },
+    to: { transform: "scale(1)", opacity: 1 },
+    delay: delay * 200,
+  });
+  return (
+    <animated.div style={props} className="video-card">
+      <IonIcon className="play-icon" icon={playCircle} />
+      <div className="video-meta">
+        <div className="video-title">{video.name.split(".")[0]}</div>
+        <div className="video-date">{`${new Date(video.timeStamp)
+          .toDateString()
+          .slice(4)}`}</div>
+        <div className="video-action-buttons">
+          <IonButton onClick={onClick}>
+            Play
+          </IonButton>
+          <IonButton fill="outline" onClick={() => {
+            // downloadElement.current!.click();
+            downloadVideo();
+          }}>
+            Download
+          </IonButton>
+          <a href={video.url} title={video.name} download={video.name} target="_self" ref={downloadElement}></a>
+        </div>
+      </div>
+    </animated.div>
+  );
+};
+
+
 
 export default Album;
