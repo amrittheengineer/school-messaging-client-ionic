@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import request from "../modules/request";
 import axios, { Canceler, CancelToken, AxiosResponse } from "axios";
-import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer';
 import {
   GalleryContextInterface,
   Album,
@@ -10,12 +9,8 @@ import {
 } from "../interface/TypeInterface";
 
 import firebase from "firebase/app";
-import { File } from '@ionic-native/file'
-
-// import "firebase/firestore";
-// import "firebase/auth";
+import { Plugins, FilesystemDirectory, FilesystemEncoding } from '@capacitor/core';
 import "firebase/storage";
-// import { FirebaseAuthentication } from "@ionic-native/firebase-authentication";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBjWJwgkI8ABEPtmDUxJwzXrwdiQsNX1VM",
@@ -28,66 +23,25 @@ const firebaseConfig = {
   measurementId: "G-TGBS4PYXMD",
 };
 
+const { Filesystem } = Plugins;
+
+
+
 const app = firebase.initializeApp(firebaseConfig);
 const storage = app.storage();
-
-
-
-// storage
-//   .refFromURL(
-//     "gs://st-marys-school-d6378.appspot.com/3bb063e0-8194-11ea-a388-c5252c0215e2"
-//   )
-//   .listAll()
-//   .then((list) => {
-//     // alert(list.items.map((d) => d.getDownloadURL()));
-//     list.items.forEach((item) => {
-//       // console.log(item);
-//       item.getMetadata().then((file) => {
-//         console.log(file.name);
-//       });
-//     });
-//   })
-//   .catch((err) => {
-//     console.log(err);
-
-//     // alert(err.message);
-//   });
 
 export const GalleryContext = React.createContext<GalleryContextInterface | null>(
   null
 );
 export const GalleryContextProvider = (props: { children: any }) => {
   const [currentAlbum, setCurrentAlbum] = useState<string>("");
+  const currentAlbumName = useRef<string>("");
   const [contentLoading, setContentLoading] = useState<boolean>(false);
   const [hasMoreItems, setHasMoreItems] = useState<boolean>(true);
 
   const [albumPhotos, setAlbumPhotos] = useState<Array<Photo>>([]);
   const [albumVideos, setalbumVideos] = useState<Array<Video>>([]);
   const albumStorageRef = React.useRef<string>("");
-  // useEffect(() => {
-  //   let cancel: Canceler;
-  //   if (currentAlbum !== null) {
-  //     console.log("Changed album state");
-  //     setAlbumPhotos([]);
-  //     let source: CancelToken = new axios.CancelToken((c) => {
-  //       cancel = c;
-  //     });
-  //     const { requestPromise } = request(
-  //       "/api/student/get-photos/" + currentAlbum.id + "/1",
-  //       { method: "GET", cancelToken: source }
-  //     );
-
-  //     requestPromise
-  //       .then((res: { data: { photos: Array<string> } }) => {
-  //         const { photos } = res.data;
-  //         setAlbumPhotos([...photos]);
-  //       })
-  //       .catch((err) => console.log(err));
-  //   }
-  //   return () => {
-  //     if (cancel) cancel();
-  //   };
-  // }, [currentAlbum]);
 
   useEffect(() => {
     if (currentAlbum) {
@@ -97,7 +51,7 @@ export const GalleryContextProvider = (props: { children: any }) => {
       // .catch((err) => {
       //   console.log("Rejected", err);
       // });
-
+      currentAlbumName.current = albumList.find(album => album.id === currentAlbum)?.title || "Gallery";
       loadFromStorage(currentAlbum);
     }
   }, [currentAlbum]);
@@ -109,17 +63,54 @@ export const GalleryContextProvider = (props: { children: any }) => {
     albumStorageRef.current = "";
   };
 
-  const downloadFile = (url: string, name: string) => {
-    let f: FileTransferObject = FileTransfer.create();
-    return new Promise((resolve, reject) => {
+  // const downloadFileOld = (url: string, name: string) => {
+  //   let f: FileTransferObject = FileTransfer.create();
+  //   return new Promise((resolve, reject) => {
 
-      f.download(url, "School App/" + currentAlbum + "/" + name, true).then(entry => {
-        alert(entry.toURL());
-        resolve(entry);
-      }).catch(err => {
-        alert(err.message);
-        reject(err);
-      })
+
+
+  //     f.download(url, "School App/" + currentAlbum + "/" + name, true).then(entry => {
+  //       alert(entry.toURL());
+  //       resolve(entry);
+  //     }).catch(err => {
+  //       alert(err.message);
+  //       reject(err);
+  //     })
+  //   })
+  // }
+
+
+
+  const downloadFile = (url: string, name: string, type: string) => {
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.responseType = 'blob';
+
+      xhr.onload = function () {
+        if (this.status == 200) {
+          var blob = new Blob([this.response], { type });
+          var reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onloadend = function () {
+            var base64data = reader.result;
+            Filesystem.writeFile({
+              data: base64data?.toString() || "",
+              path: `School App/${currentAlbumName.current}/${name}`,
+              directory: FilesystemDirectory.Documents,
+              recursive: true
+            }).then(c => {
+              resolve(c);
+            }).catch(err => {
+              reject(err);
+
+            })
+          }
+        }
+      };
+      xhr.send();
+
+
     })
   }
 
@@ -182,13 +173,14 @@ export const GalleryContextProvider = (props: { children: any }) => {
             timeStamp: string;
           }) => {
             if (media.type.indexOf("image") !== -1) {
-              images.push({ url: media.url, name: media.name });
+              images.push({ url: media.url, name: media.name, type: media.type });
             } else if (media.type.indexOf("video") !== -1) {
               console.log("[LOG] Video", media.name);
               videos.push({
                 url: media.url,
                 name: media.name,
                 timeStamp: media.timeStamp,
+                type: media.type
               });
             }
           }

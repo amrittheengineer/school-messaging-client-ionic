@@ -215,28 +215,48 @@
   color: #262626;
 }
 
-.gallery-image-container {
+.gallery-slides {
+  height: 100%;
+}
+
+.gallery-slides .image-slide {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  background-color: #000;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  width: 100%;
-  height: 100vh;
 }
 
-.gallery-image-container .gallery-image {
+.gallery-slides .image-slide .gallery-image-container {
+  background-color: #000;
+  width: 100%;
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
-  -ms-touch-action: auto;
-      touch-action: auto;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+}
+
+.gallery-slides .image-slide .gallery-image-container .gallery-image {
+  -ms-grid-column-align: center;
+      justify-self: center;
+  height: 80%;
+}
+
+.gallery-slides .image-slide .gallery-image-container .image-actions {
+  padding: 16px 16px 0 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+}
+
+.gallery-slides .image-slide .gallery-image-container .image-actions .download-icon {
+  color: #fff;
+  height: 48px;
+  width: 48px;
 }
 
 .album-card {
@@ -270,6 +290,26 @@
   color: #262626;
   margin: 0 0 4px 8px;
   font-size: 0.8rem;
+}
+
+.url-card {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 8px;
+}
+
+.url-card .url-thumbnail {
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+  border-radius: 8px 8px 0 0;
+}
+
+.url-card .url-meta {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
 }
 
 .album-list {

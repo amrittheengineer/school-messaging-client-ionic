@@ -7,6 +7,8 @@ import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
 import { ClassAnnouncement } from "../interface/TypeInterface";
 import { useSpring, animated } from "react-spring";
+import EmptyComponent from "../components/EmptyComponent";
+
 import FlatList from "flatlist-react";
 const { timeSince } = Constant;
 
@@ -56,7 +58,7 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
                     index={index}
                   />
                 )}
-                renderWhenEmpty={() => <p>Nothing Here</p>}
+                renderWhenEmpty={() => <EmptyComponent />}
               />
               {/* {classAnnouncements?.map(
                 (announcemnent: ClassAnnouncement, index: number) => (

@@ -53,10 +53,12 @@ export interface Video {
   url: string;
   name: string;
   timeStamp: string;
+  type: string;
 }
 export interface Photo {
   url: string;
   name: string;
+  type: string;
 }
 export interface Album {
   videos: number;
@@ -78,7 +80,7 @@ export interface GalleryContextInterface {
   loadFromStorage: (directory: string) => void;
   contentLoading: boolean;
   hasMoreItems: boolean;
-  downloadFile: (url: string, name: string) => Promise<any>;
+  downloadFile: (url: string, name: string, type: string) => Promise<any>;
 }
 
 export interface User {
@@ -92,13 +94,12 @@ export interface ClassAnnouncement extends Broadcast {
 }
 export interface Announcement extends Broadcast {
   photos: Array<string> | null;
-  videos: Array<string> | null;
   url: Array<URLObject>;
 }
 export interface URLObject {
   thumbnail: string;
   url: string;
-  title: string | null;
+  title?: string;
 }
 
 export interface Broadcast {

@@ -19,8 +19,6 @@ const { getStorageURL } = Constant;
 
 const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
   const albumList = useContext(GalleryContext)!.albumList;
-  const setCurremtAlbum = useContext(GalleryContext)!.setCurrentAlbum;
-  const resetStorageRef = useContext(GalleryContext)!.resetStorageRef;
   useEffect(() => {
     console.log(history.action);
   }, [albumList]);
@@ -48,7 +46,7 @@ const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
                 <AlbumCard
                   album={album}
                   onClick={() => {
-                    history.push("/album/" + album.id, { data: "ciunu" });
+                    history.push("/album/" + album.id);
                   }}
                   key={album.id}
                   delay={index}

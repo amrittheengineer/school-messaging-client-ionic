@@ -24,8 +24,6 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
     batchId: "03ee1740-7b40-11ea-881d-4f34ce240b83",
   });
 
-
-
   const updateAnnouncements = (callback: () => void) => {
     if (user && user.batchId) {
       setAnnouncements((prev) => []);

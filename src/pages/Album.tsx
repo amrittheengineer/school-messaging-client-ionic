@@ -10,12 +10,10 @@ import {
   IonSlide,
   IonSlides,
   IonSpinner,
-  IonThumbnail,
-  IonVirtualScroll,
-  IonInfiniteScroll,
   IonButton,
   IonIcon,
   IonImg,
+  IonLoading,
 } from "@ionic/react";
 
 // import { useFilesystem, base64FromPath } from '@ionic/react-hooks/filesystem';
@@ -29,8 +27,11 @@ import { playCircle } from "ionicons/icons";
 import { useSpring, animated } from "react-spring";
 import { GlobalStateContext } from "../context/GlobalStateContext";
 import { Capacitor } from '@capacitor/core'
+import EmptyComponent from "../components/EmptyComponent";
 
 const Application = Plugins.App;
+const { LocalNotifications } = Plugins;
+
 const { convertFileSrc } = Capacitor;
 // const { writeFile } = useFilesystem();
 
@@ -42,6 +43,7 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
   const setHideTabBar = useContext(GlobalStateContext)!.setHideTabBar;
 
   const [selected, setSelected] = useState<string>("photos");
+  const [downloading, setDownloading] = useState<string>("");
 
   useEffect(() => {
     Application.removeAllListeners();
@@ -100,6 +102,7 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
         </IonSegment>
       </IonToolbar>
       <IonContent>
+        <IonLoading isOpen={downloading !== ""} message={downloading} />
         {/* <IonReactRouter>
         <Route path="/view/photos" component={Photos} exact={true} />
         <Route path="/view/videos" component={Videos} exact={true} />
@@ -145,7 +148,23 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
                       history.push("/video-player/?url=" + encodeURIComponent(video.url));
                     }}
                     downloadVideo={() => {
-                      window.location = video.url;
+                      setDownloading("Downloading " + video.name);
+                      // window.location = video.url;
+                      context?.downloadFile(video.url, video.name, video.type).then(v => {
+                        // alert("Video Downloaded");
+                        setDownloading("");
+                        LocalNotifications.schedule({
+                          notifications: [
+                            {
+                              title: "Download Completed!",
+                              body: "Open Gallery to view the video.",
+                              id: 2
+                            },
+                          ],
+                        })
+                      }).catch(err => {
+                        setDownloading("");
+                      })
                       // var link = document.createElement("a");
                       // if (link.download !== undefined) {
                       //   link.setAttribute("href", video.url);
@@ -181,19 +200,7 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
   );
 };
 
-const EmptyComponent: React.FC = () => {
-  return (
-    <div className="album-progress-container">
-      <div className="album-progress">
-        <img
-          className="progress-image"
-          src={require("../images/nothing.svg")}
-        />
-        <div>Nothing Here</div>
-      </div>
-    </div>
-  );
-};
+
 const Loading: React.FC = () => {
   return (
     <div className="album-progress-container">

@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import { Redirect, Route } from "react-router-dom";
-import { useHistory, RouteComponentProps } from "react-router";
+import { RouteComponentProps } from "react-router";
 import {
-  IonApp,
+  IonLoading,
   IonIcon,
   IonLabel,
   IonRouterOutlet,
@@ -16,7 +16,7 @@ import {
   IonImg
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { home, image, chatbubbleEllipses } from "ionicons/icons";
+import { home, image, chatbubbleEllipses, downloadOutline } from "ionicons/icons";
 import Tab1 from "./pages/Tab1";
 import Tab2 from "./pages/Tab2";
 import Tab3 from "./pages/Tab3";
@@ -40,17 +40,17 @@ import "@ionic/react/css/display.css";
 /* Theme variables */
 import "./theme/variables.css";
 import {
-  GlobalStateContextProvider,
-  GlobalStateContext,
+  GlobalStateContextProvider
 } from "./context/GlobalStateContext";
 import { GalleryContext } from "./context/GalleryContext";
-import * as qs from 'querystring';
 import { GalleryContextProvider } from "./context/GalleryContext";
 import Album from "./pages/Album";
 import { Plugins } from "@capacitor/core";
 import "./pages/Tab.css";
 
 const Application = Plugins.App;
+const { LocalNotifications } = Plugins;
+
 const VideoPlayer: React.FC<RouteComponentProps> = ({
   location,
   history
@@ -95,31 +95,55 @@ const VideoPlayer: React.FC<RouteComponentProps> = ({
   );
 };
 const Gallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match }) => {
-  const albumPhotos = useContext(GalleryContext)!.albumPhotos
+  const albumPhotos = useContext(GalleryContext)!.albumPhotos;
+  const downloadFile = useContext(GalleryContext)!.downloadFile;
   const slideOpts = {
     initialSlide: parseInt(match.params.index) || 0,
     speed: 400
   };
 
+  const [downloading, setDownloading] = useState<string>("");
+
+
   return (
     <IonPage>
-      <IonContent fullscreen={true}>
-        <div className="gallery-holder">
+      <IonContent className="gallery-page">
+        <IonLoading isOpen={downloading !== ""} message={downloading} />
 
-          <IonSlides options={slideOpts}>
-            {
-              albumPhotos.map((photo, index) => {
-                return (
-                  <IonSlide key={index} className="image-slide">
-                    <div className="gallery-image-container">
-                      <IonImg className="gallery-image" src={photo.url} />
+        <IonSlides className="gallery-slides" options={slideOpts}>
+          {
+            albumPhotos.map((photo, index) => {
+              return (
+                <IonSlide key={index} className="image-slide">
+
+                  <div className="gallery-image-container">
+                    <div className="image-actions">
+
+                      <IonIcon icon={downloadOutline} onClick={() => {
+                        setDownloading("Downloading");
+                        downloadFile(photo.url, photo.name, photo.type).then(() => {
+                          setDownloading("");
+                          LocalNotifications.schedule({
+                            notifications: [
+                              {
+                                title: "Download Completed!",
+                                body: `Open Gallery to view the image.`,
+                                id: 1
+                              },
+                            ],
+                          })
+                        }).catch(err => {
+                          setDownloading("");
+                        })
+                      }} className="download-icon" />
                     </div>
-                  </IonSlide>
-                )
-              })
-            }
-          </IonSlides>
-        </div>
+                    <IonImg className="gallery-image" src={photo.url} />
+                  </div>
+                </IonSlide>
+              )
+            })
+          }
+        </IonSlides>
       </IonContent>
     </IonPage>
   )
