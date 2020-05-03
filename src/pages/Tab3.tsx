@@ -13,8 +13,7 @@ import { Album } from "../interface/TypeInterface";
 import { animated, useSpring } from "react-spring";
 import { GalleryContext } from "../context/GalleryContext";
 import Constant from "../Constant";
-import { RouteComponentProps, Route } from "react-router";
-import { useHistory } from "react-router";
+import { RouteComponentProps } from "react-router";
 const { getStorageURL } = Constant;
 
 const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
@@ -45,9 +44,6 @@ const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
                 // <IonRouterLink routerLink="/album" routerDirection="forward">
                 <AlbumCard
                   album={album}
-                  onClick={() => {
-                    history.push("/album/" + album.id);
-                  }}
                   key={album.id}
                   delay={index}
                 />
@@ -64,8 +60,7 @@ const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
 const AlbumCard: React.FC<{
   album: Album;
   delay: number;
-  onClick: () => void;
-}> = ({ album, delay, onClick }) => {
+}> = ({ album, delay }) => {
 
   const props = useSpring({
     from: { transform: "scale(0.95)", opacity: 0 },
@@ -74,7 +69,7 @@ const AlbumCard: React.FC<{
   });
   return (
 
-    <animated.div className="album-card-wrapper">
+    <animated.div style={props} className="album-card-wrapper">
       <IonCard routerLink={"/album/" + album.id} routerDirection="forward" >
         {/* <img
         className="album-thumbnail"
@@ -85,7 +80,7 @@ const AlbumCard: React.FC<{
 
           <div className="album-thumbnail">
             <IonThumbnail>
-              <IonImg src={getStorageURL(album.id, album.thumbnail)} />
+              <IonImg src={getStorageURL(album.id, "thumbs/thumb@256_" + album.thumbnail)} />
             </IonThumbnail>
           </div>
           <div className="album-meta">

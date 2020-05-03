@@ -10,6 +10,9 @@ export interface GlobalStateContextInterface {
   updateAnnouncements: (callback: () => void) => void;
   hideTabBar: boolean;
   setHideTabBar: Dispatch<SetStateAction<boolean>>;
+  loadResourceURL: (url: string) => Promise<any>;
+  currentPost: Array<string>;
+  setCurrentPost: Dispatch<SetStateAction<Array<string>>>;
 }
 // interface Props<T> {
 //   list: T[];
@@ -93,8 +96,8 @@ export interface ClassAnnouncement extends Broadcast {
   subject: string;
 }
 export interface Announcement extends Broadcast {
-  photos: Array<string> | null;
-  url: Array<URLObject>;
+  photos?: Array<string>;
+  url?: Array<URLObject>;
 }
 export interface URLObject {
   thumbnail: string;

@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
-import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem } from "@ionic/react";
+import React, { useContext, useState } from "react";
+import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem, IonLoading } from "@ionic/react";
 import "./Tab.css";
-import { chatbubbleEllipses, search, filter } from "ionicons/icons";
+import { chatbubbleEllipses, search } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
 import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
@@ -9,14 +9,18 @@ import { Announcement } from "../interface/TypeInterface";
 import { useSpring, animated } from "react-spring";
 import FlatList from "flatlist-react";
 import EmptyComponent from "../components/EmptyComponent";
+import { Toast } from "@capacitor/core";
 
-const { timeSince } = Constant;
+const { timeSince, getStorageURL } = Constant;
 
-const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
+const Tab1: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) => {
   const announcements = useContext(GlobalStateContext)?.announcements;
+  const setCurrentPost = useContext(GlobalStateContext)!.setCurrentPost;
+  const [loading, setLoading] = useState<boolean>(false);
   return (
     <IonPage>
       <IonContent>
+        <IonLoading message="Loading" isOpen={loading} />
         <div className="page-container">
           <div className="header">
             <div className="tab-name-container">
@@ -44,11 +48,25 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
             <div className="announcement-list">
               <FlatList
                 list={announcements ? announcements : []}
-                renderItem={(announcemnent, index) => (
+                renderItem={(announcement, index) => (
                   <PostCard
-                    item={announcemnent}
+                    item={announcement}
                     key={index}
                     index={index}
+                    setLoading={(load: boolean) => {
+                      setLoading(load);
+                    }}
+                    openVideoPlayer={
+                      (url) => {
+                        history.push("/video-player?url=" + encodeURI(url));
+                      }
+                    }
+                    openPostImage={
+                      (index: number) => {
+                        setCurrentPost(announcement.photos ? announcement.photos.map((photo: string) => getStorageURL(`announcements/${announcement.id}`, photo)) : []);
+                        history.push("/post-images-gallery/" + index);
+                      }
+                    }
                   />
                 )}
                 renderWhenEmpty={() => <EmptyComponent />}
@@ -64,21 +82,61 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
 const PostCard: React.FC<{
   item: Announcement;
   index: number;
-}> = ({ item, index }) => {
+  setLoading: (load: boolean) => void;
+  openVideoPlayer: (url: string) => void;
+  openPostImage: (index: number) => void;
+}> = ({ item, index, setLoading, openVideoPlayer, openPostImage }) => {
   const props = useSpring({
     from: { transform: "scale(0.95)", opacity: 0 },
     to: { transform: "scale(1)", opacity: 1 },
     delay: (typeof index === "string" ? parseInt(index) : index) * 200,
   });
+  const loadResourceURL = useContext(GlobalStateContext)!.loadResourceURL;
   return (
     <animated.div style={props} className="school-card">
       <div className="card-title">{"Admin"}</div>
       <div className="card-message">{item.message}</div>
+      <div className="post-image-card-list">
+        {
+          item.photos?.length && item.photos?.slice(0, 2).map((photo, index) => {
+            return (
+              <div className="post-image-card" onClick={() => {
+                openPostImage(index)
+              }}>
+                <IonThumbnail className="post-image-thumbnail" >
+                  <IonImg src={getStorageURL("announcements/" + item.id, photo)} />
+                </IonThumbnail>
+              </div>
+            )
+          })
+        }
+      </div>
       {
-        item.url.length && item.url.map(url => {
+        item.url?.length && item.url?.map(url => {
           return (
             <IonCard onClick={() => {
-              window.open(url.url, "_system");
+              if (
+                url.url &&
+                (url.url?.indexOf("youtube.com/watch") !== -1 ||
+                  url.url?.indexOf("youtu.be/") !== -1)
+              ) {
+
+                setLoading(true);
+                loadResourceURL(url.url).then(resourceUrl => {
+                  setLoading(false);
+                  openVideoPlayer(resourceUrl[0].url);
+                }).catch((err) => {
+                  alert(err);
+                  setLoading(false);
+                  Toast.show({
+                    text: "Sorry, try again later",
+                    duration: "short",
+                  })
+                })
+              } else {
+
+                window.open(url.url, "_system");
+              }
             }}>
               <div className="url-card">
 
@@ -101,6 +159,7 @@ const PostCard: React.FC<{
           )
         })
       }
+
       <div className="author">{`${timeSince(item.timeStamp)}`}</div>
     </animated.div>
   );

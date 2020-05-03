@@ -103,6 +103,26 @@
   font-size: 2rem;
 }
 
+.announcement-list .school-card .post-image-card-list {
+  margin: 12px 12px 0 12px;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.announcement-list .school-card .post-image-card-list .post-image-card {
+  padding: 2px;
+}
+
+.announcement-list .school-card .post-image-card-list .post-image-card .post-image-thumbnail {
+  background-color: #c1c1c1;
+  --size: 100%;
+  height: 160px;
+}
+
 .announcement-list .school-card .card-message {
   margin: 12px 12px 0 12px;
   -webkit-box-flex: 1;

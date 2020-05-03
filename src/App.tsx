@@ -40,7 +40,8 @@ import "@ionic/react/css/display.css";
 /* Theme variables */
 import "./theme/variables.css";
 import {
-  GlobalStateContextProvider
+  GlobalStateContextProvider,
+  GlobalStateContext
 } from "./context/GlobalStateContext";
 import { GalleryContext } from "./context/GalleryContext";
 import { GalleryContextProvider } from "./context/GalleryContext";
@@ -94,6 +95,66 @@ const VideoPlayer: React.FC<RouteComponentProps> = ({
     </IonPage>
   );
 };
+const PostGallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match }) => {
+  const albumPhotos = useContext(GlobalStateContext)!.currentPost;
+  const downloadFile = useContext(GalleryContext)!.downloadFile;
+  const slideOpts = {
+    initialSlide: parseInt(match.params.index) || 0,
+    speed: 400
+  };
+  const [downloading, setDownloading] = useState<string>("");
+  useEffect(() => {
+    Application.removeAllListeners();
+    return () => {
+      Application.addListener("backButton", () => {
+        Application.exitApp();
+      });
+    };
+  }, []);
+
+
+  return (
+    <IonPage>
+      <IonContent className="gallery-page">
+        <IonLoading isOpen={downloading !== ""} message={downloading} />
+        <IonSlides className="gallery-slides" options={slideOpts}>
+          {
+            albumPhotos.map((photo, index) => {
+              return (
+                <IonSlide key={index} className="image-slide">
+
+                  <div className="gallery-image-container">
+                    <div className="image-actions">
+
+                      <IonIcon icon={downloadOutline} onClick={() => {
+                        setDownloading("Downloading");
+                        downloadFile(photo, `${Date.now()}.png`, "image/png").then(() => {
+                          setDownloading("");
+                          LocalNotifications.schedule({
+                            notifications: [
+                              {
+                                title: "Download Completed!",
+                                body: `Open Gallery to view the image.`,
+                                id: 1
+                              },
+                            ],
+                          })
+                        }).catch(err => {
+                          setDownloading("");
+                        })
+                      }} className="download-icon" />
+                    </div>
+                    <IonImg className="gallery-image" src={photo} />
+                  </div>
+                </IonSlide>
+              )
+            })
+          }
+        </IonSlides>
+      </IonContent>
+    </IonPage>
+  )
+}
 const Gallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match }) => {
   const albumPhotos = useContext(GalleryContext)!.albumPhotos;
   const downloadFile = useContext(GalleryContext)!.downloadFile;
@@ -186,6 +247,11 @@ const AppCore: React.FC = () => {
               exact={true}
             />
             <Route
+              path="/post-images-gallery/:index"
+              component={PostGallery}
+              exact={true}
+            />
+            <Route
               path="/"
               render={() => <Redirect to="/tab2" />}
               exact={true}
@@ -195,7 +261,7 @@ const AppCore: React.FC = () => {
           </IonRouterOutlet>
           <IonTabBar slot="bottom">
             <IonTabButton
-              disabled={currentTab === "tab1"}
+              // disabled={currentTab === "tab1"}
               tab="tab1"
               href="/tab1"
             >
@@ -203,7 +269,7 @@ const AppCore: React.FC = () => {
               <IonLabel>Announcements</IonLabel>
             </IonTabButton>
             <IonTabButton
-              disabled={currentTab === "tab2"}
+              // disabled={currentTab === "tab2"}
               tab="tab2"
               href="/tab2"
             >
@@ -211,7 +277,7 @@ const AppCore: React.FC = () => {
               <IonLabel>Posts</IonLabel>
             </IonTabButton>
             <IonTabButton
-              disabled={currentTab === "gallery"}
+              // disabled={currentTab === "gallery"}
               tab="gallery"
               href="/gallery"
             >

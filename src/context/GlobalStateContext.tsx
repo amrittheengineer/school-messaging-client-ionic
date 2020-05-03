@@ -24,6 +24,9 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
     batchId: "03ee1740-7b40-11ea-881d-4f34ce240b83",
   });
 
+  const [currentPost, setCurrentPost] = useState<Array<string>>([]);
+
+
   const updateAnnouncements = (callback: () => void) => {
     if (user && user.batchId) {
       setAnnouncements((prev) => []);
@@ -44,6 +47,22 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         });
     }
   };
+
+  const loadResourceURL = (url: string) => {
+    return new Promise((resolve, reject) => {
+      fetch(
+        'https://cors-bypasss.herokuapp.com/http://bbblogin-ftw.herokuapp.com/get-url?link=' + url,
+        { method: 'GET', mode: 'cors', headers: { 'Origin': '', 'X-Requested-With': '' } },
+      )
+        .then(res => res.json())
+        .then(data => {
+          resolve(data);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    })
+  }
   const updateClassAnnouncements = (callback: () => void) => {
     if (user && user.batchId) {
       setClassAnnouncements((prev) => []);
@@ -136,6 +155,8 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         setClassAnnouncements,
         hideTabBar,
         setHideTabBar,
+        loadResourceURL,
+        currentPost, setCurrentPost
       }}
     >
       {props.children}

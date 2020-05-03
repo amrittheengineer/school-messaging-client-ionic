@@ -14,6 +14,7 @@ import {
   IonIcon,
   IonImg,
   IonLoading,
+  IonVirtualScroll,
 } from "@ionic/react";
 
 // import { useFilesystem, base64FromPath } from '@ionic/react-hooks/filesystem';
@@ -113,27 +114,37 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
         />
       </IonReactRouter> */}
         {selected === "photos" ? (
-          <FlatList
-            list={context ? context.albumPhotos : []}
-            renderItem={(image, ind) => {
-              return (
-                <div key={`${ind}`} onClick={() => {
-                  history.push("/image-gallery/" + ind);
-                }} className="image-thumbnail-container">
-                  <IonImg src={image.url} className="image-thumbnail" />
-                </div>
-              );
-            }}
-            renderWhenEmpty={() => {
-              if (context?.hasMoreItems) return <Loading />;
-              else return <EmptyComponent />;
-            }}
-            // pagination={true}
-            hasMoreItems={context?.hasMoreItems}
-            loadMoreItems={() => {
-              context?.loadFromStorage(match.params.id);
-            }}
-          />
+          context?.albumPhotos.map((image, ind) => {
+
+            return (
+              <div key={`${ind}`} onClick={() => {
+                history.push("/image-gallery/" + ind);
+              }} className="image-thumbnail-container">
+                <IonImg src={image.url} className="image-thumbnail" />
+              </div>
+            );
+          })
+          // <FlatList
+          //   list={context ? context.albumPhotos : []}
+          //   renderItem={(image, ind) => {
+          //     return (
+          //       <div key={`${ind}`} onClick={() => {
+          //         history.push("/image-gallery/" + ind);
+          //       }} className="image-thumbnail-container">
+          //         <IonImg src={image.url} className="image-thumbnail" />
+          //       </div>
+          //     );
+          //   }}
+          //   renderWhenEmpty={() => {
+          //     if (context?.hasMoreItems) return <Loading />;
+          //     else return <EmptyComponent />;
+          //   }}
+          //   // pagination={true}
+          //   hasMoreItems={context?.hasMoreItems}
+          //   loadMoreItems={() => {
+          //     context?.loadFromStorage(match.params.id);
+          //   }}
+          // />
         ) : (
             <FlatList
               list={context ? context.albumVideos : []}
@@ -150,6 +161,7 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
                     downloadVideo={() => {
                       setDownloading("Downloading " + video.name);
                       // window.location = video.url;
+
                       context?.downloadFile(video.url, video.name, video.type).then(v => {
                         // alert("Video Downloaded");
                         setDownloading("");

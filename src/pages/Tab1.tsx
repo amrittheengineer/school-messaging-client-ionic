@@ -14,8 +14,6 @@ const { timeSince } = Constant;
 
 const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
   const classAnnouncements = useContext(GlobalStateContext)?.classAnnouncements;
-  const setClassAnnouncements = useContext(GlobalStateContext)
-    ?.setClassAnnouncements;
   return (
     <IonPage>
       <IonContent>
@@ -30,12 +28,12 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
                 <IonIcon
                   icon={filter}
                   onClick={() => {
-                    if (setClassAnnouncements && classAnnouncements) {
-                      setClassAnnouncements([
-                        ...classAnnouncements,
-                        ...classAnnouncements,
-                      ]);
-                    }
+                    // if (setClassAnnouncements && classAnnouncements) {
+                    //   setClassAnnouncements([
+                    //     ...classAnnouncements,
+                    //     ...classAnnouncements,
+                    //   ]);
+                    // }
                   }}
                 />
                 <IonIcon icon={search} />

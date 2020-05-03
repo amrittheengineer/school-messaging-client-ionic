@@ -9,7 +9,7 @@ import {
 } from "../interface/TypeInterface";
 
 import firebase from "firebase/app";
-import { Plugins, FilesystemDirectory, FilesystemEncoding } from '@capacitor/core';
+import { Plugins, FilesystemDirectory } from '@capacitor/core';
 import "firebase/storage";
 
 const firebaseConfig = {
@@ -45,12 +45,6 @@ export const GalleryContextProvider = (props: { children: any }) => {
 
   useEffect(() => {
     if (currentAlbum) {
-      // .then((val) => {
-      //   console.log("Resolved", val);
-      // })
-      // .catch((err) => {
-      //   console.log("Rejected", err);
-      // });
       currentAlbumName.current = albumList.find(album => album.id === currentAlbum)?.title || "Gallery";
       loadFromStorage(currentAlbum);
     }
@@ -79,8 +73,6 @@ export const GalleryContextProvider = (props: { children: any }) => {
   //   })
   // }
 
-
-
   const downloadFile = (url: string, name: string, type: string) => {
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest();
@@ -96,7 +88,7 @@ export const GalleryContextProvider = (props: { children: any }) => {
             var base64data = reader.result;
             Filesystem.writeFile({
               data: base64data?.toString() || "",
-              path: `School App/${currentAlbumName.current}/${name}`,
+              path: `School App/${currentAlbumName.current || "Posts"}/${name}`,
               directory: FilesystemDirectory.Documents,
               recursive: true
             }).then(c => {
@@ -125,7 +117,7 @@ export const GalleryContextProvider = (props: { children: any }) => {
     setContentLoading(true);
     if (albumStorageRef.current === "") {
       data = await storage
-        .refFromURL(`gs://st-marys-school-d6378.appspot.com/${directory}`)
+        .refFromURL(`gs://st-marys-school-d6378.appspot.com/${directory}/thumbs`)
         .list({
           maxResults: 8,
         });
