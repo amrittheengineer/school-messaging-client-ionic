@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import request from "../modules/request";
+import { isPlatform, getPlatforms } from '@ionic/react'
 import axios, { Canceler, CancelToken, AxiosResponse } from "axios";
 import {
   GalleryContextInterface,
@@ -75,32 +76,51 @@ export const GalleryContextProvider = (props: { children: any }) => {
 
   const downloadFile = (url: string, name: string, type: string) => {
     return new Promise((resolve, reject) => {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      xhr.responseType = 'blob';
+      if (isPlatform("capacitor") || isPlatform("cordova")) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'blob';
 
-      xhr.onload = function () {
-        if (this.status == 200) {
-          var blob = new Blob([this.response], { type });
-          var reader = new FileReader();
-          reader.readAsDataURL(blob);
-          reader.onloadend = function () {
-            var base64data = reader.result;
-            Filesystem.writeFile({
-              data: base64data?.toString() || "",
-              path: `School App/${currentAlbumName.current || "Posts"}/${name}`,
-              directory: FilesystemDirectory.Documents,
-              recursive: true
-            }).then(c => {
-              resolve(c);
-            }).catch(err => {
-              reject(err);
+        xhr.onload = function () {
+          if (this.status == 200) {
+            var blob = new Blob([this.response], { type });
+            var reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = function () {
+              var base64data = reader.result;
+              Filesystem.writeFile({
+                data: base64data?.toString() || "",
+                path: `School App/${currentAlbumName.current || "Posts"}/${name}`,
+                directory: FilesystemDirectory.Documents,
+                recursive: true
+              }).then(c => {
+                resolve(c);
+              }).catch(err => {
+                reject(err);
 
-            })
+              })
+            }
           }
-        }
-      };
-      xhr.send();
+        };
+        xhr.send();
+
+      } else {
+        fetch(url).then(function (t) {
+          return t.blob().then((b) => {
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(b);
+            a.setAttribute("download", name);
+            a.click();
+            resolve();
+          }
+          ).catch(err => {
+            reject(err);
+          })
+        });
+
+
+      }
+
 
 
     })

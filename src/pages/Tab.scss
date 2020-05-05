@@ -2,7 +2,7 @@ $color: #e74c3c;
 
 .header {
   background-color: $color;
-  height: 25%;
+  height: 35%;
   display: flex;
   flex-direction: column;
   padding: 24px 24px 0 24px;
@@ -37,6 +37,25 @@ $color: #e74c3c;
       }
     }
   }
+
+  .screen-name {
+    display: flex;
+    flex-direction: column;
+    // height: 100%;
+    margin: auto 0;
+    .title {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: bold;
+      // background-color: #c1c1c1;
+      // flex: 1;
+      margin: 8px 0;
+    }
+    .description {
+      color: #fff;
+      font-size: 1rem;
+    }
+  }
 }
 .page-container {
   overflow: hidden;
@@ -50,6 +69,27 @@ $color: #e74c3c;
   //   overflow-y: hidden;
   //   -webkit-overflow-scrolling: touch;
   //   overflow-y: auto;
+}
+body {
+  display: flex;
+  .sign-in-card {
+    // background-color: #c1c1c1;
+    display: flex;
+    flex-direction: column;
+    .user-avatar {
+      width: 80px;
+      height: 80px;
+      color: $color;
+      border-radius: 50%;
+      border: 1px solid $color;
+      // margin-top: -50%;
+    }
+    .form-container-grid {
+      width: 100%;
+    }
+    height: 70%;
+    align-items: center;
+  }
 }
 
 .announcement-list {

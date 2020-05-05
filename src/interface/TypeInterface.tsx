@@ -58,6 +58,10 @@ export interface Video {
   timeStamp: string;
   type: string;
 }
+
+export interface SignUpContextInterface {
+  setSignInCallBack: (callback: () => void) => void;
+}
 export interface Photo {
   url: string;
   name: string;

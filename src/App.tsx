@@ -47,7 +47,8 @@ import { GalleryContext } from "./context/GalleryContext";
 import { GalleryContextProvider } from "./context/GalleryContext";
 import Album from "./pages/Album";
 import { Plugins } from "@capacitor/core";
-import "./pages/Tab.css";
+
+import Auth from "./pages/Auth";
 
 const Application = Plugins.App;
 const { LocalNotifications } = Plugins;
@@ -236,6 +237,7 @@ const AppCore: React.FC = () => {
             <Route path="/tab2" component={Tab2} exact={true} />
             <Route path="/gallery" component={Tab3} />
             <Route path="/album/:id" component={Album} exact={true} />
+            <Route path="/auth" component={Auth} exact={true} />
             <Route
               path="/video-player"
               component={VideoPlayer}
@@ -252,7 +254,7 @@ const AppCore: React.FC = () => {
               exact={true}
             />
             <Route
-              path="/"
+              path="/app"
               render={() => <Redirect to="/tab2" />}
               exact={true}
             />
