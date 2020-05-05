@@ -118,7 +118,7 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
 
             return (
               <div key={`${ind}`} onClick={() => {
-                history.push("/image-gallery/" + ind);
+                history.push("/app/image-gallery/" + ind);
               }} className="image-thumbnail-container">
                 <IonImg src={image.url} className="image-thumbnail" />
               </div>
@@ -156,7 +156,7 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
                     key={ind}
                     onClick={() => {
                       setHideTabBar(true);
-                      history.push("/video-player/?url=" + encodeURIComponent(video.url));
+                      history.push("/app/video-player/?url=" + encodeURIComponent(video.url));
                     }}
                     downloadVideo={() => {
                       setDownloading("Downloading " + video.name);

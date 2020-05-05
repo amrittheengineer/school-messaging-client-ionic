@@ -61,6 +61,8 @@ export interface Video {
 
 export interface SignUpContextInterface {
   setSignInCallBack: (callback: () => void) => void;
+  sendOtpCapacitor: (phone: string) => Promise<any>;
+  verifyOtpCapacitor: (otp: string) => Promise<any>;
 }
 export interface Photo {
   url: string;

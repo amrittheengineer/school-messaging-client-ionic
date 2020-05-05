@@ -58,13 +58,13 @@ const Tab1: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) =
                     }}
                     openVideoPlayer={
                       (url) => {
-                        history.push("/video-player?url=" + encodeURI(url));
+                        history.push("/app/video-player?url=" + encodeURI(url));
                       }
                     }
                     openPostImage={
                       (index: number) => {
                         setCurrentPost(announcement.photos ? announcement.photos.map((photo: string) => getStorageURL(`announcements/${announcement.id}`, photo)) : []);
-                        history.push("/post-images-gallery/" + index);
+                        history.push("/app/post-images-gallery/" + index);
                       }
                     }
                   />

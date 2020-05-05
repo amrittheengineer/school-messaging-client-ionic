@@ -70,7 +70,7 @@ const AlbumCard: React.FC<{
   return (
 
     <animated.div style={props} className="album-card-wrapper">
-      <IonCard routerLink={"/album/" + album.id} routerDirection="forward" >
+      <IonCard routerLink={"/app/album/" + album.id} routerDirection="forward" >
         {/* <img
         className="album-thumbnail"
         src={getStorageURL(album.id, album.thumbnail)}

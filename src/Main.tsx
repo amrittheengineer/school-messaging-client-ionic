@@ -1,12 +1,27 @@
 import React, { useEffect } from 'react';
-import { IonApp, IonPage, IonRouterOutlet, IonContent, IonSpinner } from '@ionic/react';
+import { IonApp, IonPage, IonRouterOutlet, IonContent, IonSpinner, useIonViewWillEnter } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Route, RouteComponentProps, Redirect } from 'react-router';
+import { GlobalStateContextProvider } from './context/GlobalStateContext'
+import { GalleryContextProvider } from './context/GalleryContext'
 import App from './App';
 import Auth from './pages/Auth';
 import { Storage } from '@capacitor/core';
 import "./pages/Tab.css";
+import Album from './pages/Album';
+import Gallery from './pages/Gallery';
+import PostGallery from './pages/PostGallery';
+import VideoPlayer from './pages/VideoPlayer';
 
+// const AppWrapper: React.FC = () => {
+//     return (
+//         <GlobalStateContextProvider>
+//             <GalleryContextProvider>
+//                 <App />
+//             </GalleryContextProvider>
+//         </GlobalStateContextProvider>
+//     );
+// };
 
 
 const Main: React.FC = () => {
@@ -32,16 +47,34 @@ const Main: React.FC = () => {
     //     })
     // }, [])
     return (
-        <IonApp>
-            <IonReactRouter>
-                <IonRouterOutlet>
-                    <Route path="/auth" component={Auth} exact={true} />
-                    <Route path="/spinner" component={Spinner} exact={true} />
-                    <Route path="/app" component={App} />
-                    <Route path="/" render={() => <Redirect to="/spinner" />} />
-                </IonRouterOutlet>
-            </IonReactRouter>
-        </IonApp>
+        <GlobalStateContextProvider>
+            <GalleryContextProvider>
+                <IonApp>
+                    <IonReactRouter>
+                        <Route path="/auth" component={Auth} exact={true} />
+                        <Route path="/spinner" component={Spinner} exact={true} />
+                        <Route path="/" render={() => <Redirect to="/spinner" />} />
+                        <Route path="/app/:tab" component={App} />
+                        {/* <Route path="/album/:id" component={Album} />
+                        <Route
+                            path="/video-player"
+                            component={VideoPlayer}
+                            exact={true}
+                        />
+                        <Route
+                            path="/image-gallery/:index"
+                            component={Gallery}
+                            exact={true}
+                        />
+                        <Route
+                            path="/post-images-gallery/:index"
+                            component={PostGallery}
+                            exact={true}
+                        /> */}
+                    </IonReactRouter>
+                </IonApp>
+            </GalleryContextProvider>
+        </GlobalStateContextProvider>
     )
 }
 
@@ -49,7 +82,7 @@ const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
     useEffect(() => {
         Storage.get({ key: "userCred" }).then(({ value }) => {
             if (value) {
-                history.replace("/app")
+                history.replace("/app/tab2")
             } else {
                 throw new Error("No user")
             }
@@ -57,6 +90,18 @@ const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
             history.replace("/auth")
         })
     }, [])
+
+    // useIonViewWillEnter(() => {
+    //     Storage.get({ key: "userCred" }).then(({ value }) => {
+    //         if (value) {
+    //             history.replace("/app")
+    //         } else {
+    //             throw new Error("No user")
+    //         }
+    //     }).catch(err => {
+    //         history.replace("/auth")
+    //     })
+    // }, [])
 
     return (
         <IonPage>
@@ -69,4 +114,5 @@ const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
         </IonPage>
     )
 }
+
 export default Main;

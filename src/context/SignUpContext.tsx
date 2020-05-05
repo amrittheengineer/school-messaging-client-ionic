@@ -55,7 +55,7 @@ export const SignUpContextProvider = (props: { children: any }) => {
                             reject(err);
                         });
                 } else {
-                    throw new Error("No phone number found")
+                    throw new Error("No phone number found.")
                 }
             } catch (err) {
                 reject(err);
@@ -66,7 +66,7 @@ export const SignUpContextProvider = (props: { children: any }) => {
         verifIdFirebase.current = "";
     }
     return (
-        <SignUpContext.Provider value={{ setSignInCallBack }}>
+        <SignUpContext.Provider value={{ setSignInCallBack, sendOtpCapacitor, verifyOtpCapacitor }}>
             {props.children}
         </SignUpContext.Provider>
     )
