@@ -301,12 +301,21 @@ $color: #e74c3c;
       background-color: #000;
       width: 100%;
       flex: 1;
-      .gallery-image {
-        justify-self: center;
-        height: 80%;
-        // background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      .gallery-image-holder {
+        align-self: center;
+        // flex: 1;
+        display: flex;
+        // min-height: 100%;
+        margin: auto 0;
+        // height: 75%;
       }
       .image-actions {
+        // height: 25%;
+        // position: fixed;
+        // flex-grow: 1;
         padding: 16px 16px 0 0;
         display: flex;
         justify-content: flex-end;
@@ -318,6 +327,9 @@ $color: #e74c3c;
       }
     }
   }
+}
+.gallery-image {
+  min-height: 10vh;
 }
 // .gallery-image-container {
 //   display: flex;

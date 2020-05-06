@@ -81,7 +81,7 @@ const Main: React.FC = () => {
 const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
     useEffect(() => {
         Storage.get({ key: "userCred" }).then(({ value }) => {
-            if (value) {
+            if (!value) {
                 history.replace("/app/tab2")
             } else {
                 throw new Error("No user")

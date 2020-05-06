@@ -30,6 +30,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
     "react-spring": "^8.0.27",
+    "react-zoom-pan-pinch": "^1.6.1",
     "typescript": "3.8.3"
   },
   "scripts": {

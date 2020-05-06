@@ -4,6 +4,8 @@ import { RouteComponentProps } from 'react-router';
 import { IonPage, IonContent, IonLoading, IonSlides, IonSlide, IonIcon, IonImg } from '@ionic/react'
 import { Toast } from '@capacitor/core';
 import { downloadOutline } from 'ionicons/icons';
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+
 
 
 const Gallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match }) => {
@@ -27,31 +29,39 @@ const Gallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match }) =>
                         albumPhotos.map((photo, index) => {
                             return (
                                 <IonSlide key={index} className="image-slide">
+                                    <TransformWrapper options={{ centerContent: true }}  >
+                                        <div className="gallery-image-container">
+                                            <div className="image-actions">
 
-                                    <div className="gallery-image-container">
-                                        <div className="image-actions">
+                                                <IonIcon icon={downloadOutline} onClick={() => {
+                                                    setDownloading("Downloading");
+                                                    downloadFile(photo.url, photo.name, photo.type).then(() => {
+                                                        setDownloading("");
+                                                        Toast.show({ text: "Downloaded.", duration: "short" });
+                                                        // LocalNotifications.schedule({
+                                                        //   notifications: [
+                                                        //     {
+                                                        //       title: "Download Completed!",
+                                                        //       body: `Open Gallery to view the image.`,
+                                                        //       id: 1
+                                                        //     },
+                                                        //   ],
+                                                        // })
+                                                    }).catch(err => {
+                                                        setDownloading("");
+                                                    })
+                                                }} className="download-icon" />
+                                            </div>
+                                            <div className="gallery-image-holder">
+                                                <div className="gallery-transform">
 
-                                            <IonIcon icon={downloadOutline} onClick={() => {
-                                                setDownloading("Downloading");
-                                                downloadFile(photo.url, photo.name, photo.type).then(() => {
-                                                    setDownloading("");
-                                                    Toast.show({ text: "Downloaded.", duration: "short" });
-                                                    // LocalNotifications.schedule({
-                                                    //   notifications: [
-                                                    //     {
-                                                    //       title: "Download Completed!",
-                                                    //       body: `Open Gallery to view the image.`,
-                                                    //       id: 1
-                                                    //     },
-                                                    //   ],
-                                                    // })
-                                                }).catch(err => {
-                                                    setDownloading("");
-                                                })
-                                            }} className="download-icon" />
+                                                    <TransformComponent>
+                                                        <IonImg className="gallery-image" src={photo.url} />
+                                                    </TransformComponent>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <IonImg className="gallery-image" src={photo.url} />
-                                    </div>
+                                    </TransformWrapper>
                                 </IonSlide>
                             )
                         })

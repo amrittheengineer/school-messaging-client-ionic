@@ -2,7 +2,7 @@ import React, { useEffect, useContext, useState, useReducer, useRef } from 'reac
 import { RouteComponentProps } from 'react-router';
 import { IonPage, IonContent, IonCard, IonLoading, IonButton, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonItem, IonIcon } from '@ionic/react';
 import { SignUpContextProvider, SignUpContext } from '../context/SignUpContext';
-import classRoom from '../images/classroom.svg';
+// import classRoom from '../images/classroom.svg';
 import introAvatar from '../images/get_started.svg';
 const Auth: React.FC<RouteComponentProps> = ({ history }) => {
     const onSignIn = () => {

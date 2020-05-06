@@ -100,7 +100,7 @@ const PostCard: React.FC<{
         {
           item.photos?.length && item.photos?.slice(0, 2).map((photo, index) => {
             return (
-              <div className="post-image-card" onClick={() => {
+              <div className="post-image-card" key={index} onClick={() => {
                 openPostImage(index)
               }}>
                 <IonThumbnail className="post-image-thumbnail" >
@@ -112,9 +112,9 @@ const PostCard: React.FC<{
         }
       </div>
       {
-        item.url?.length && item.url?.map(url => {
+        item.url?.length && item.url?.map((url, index) => {
           return (
-            <IonCard onClick={() => {
+            <IonCard key={index} onClick={() => {
               if (
                 url.url &&
                 (url.url?.indexOf("youtube.com/watch") !== -1 ||
