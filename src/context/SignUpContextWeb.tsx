@@ -132,6 +132,7 @@ export const SignUpContextWebProvider = (props: { children: any }) => {
                             window.confirmationResult = confirmationResultSignIn;
                             confirmationResult.current = confirmationResultSignIn;
                             window.signingIn = false;
+                            window.recaptchaVerifier.reset();
                             resolve();
                         })
                         .catch(err => {

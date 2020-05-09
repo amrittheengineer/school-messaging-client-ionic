@@ -34,7 +34,7 @@ interface State {
     message?: string;
 }
 interface Action {
-    type: "get_started_clicked" | "otp_sent" | "otp_resent" | "on_verification" | "otp_btn_clicked"
+    type: "get_started_clicked" | "otp_sent" | "otp_resent" | "on_verification" | "otp_btn_clicked" | "otp_resend_clicked"
 }
 
 const AuthCoreWeb: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
@@ -52,8 +52,12 @@ const AuthCoreWeb: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
             return { screenNumber: prevstate.screenNumber, screenType: prevstate.screenType, message: "Sending OTP" };
         } else if (action.type === "on_verification") {
             return { screenNumber: prevstate.screenNumber, screenType: prevstate.screenType, message: "On Verification" };
-        } else if (action.type === "otp_btn_clicked") {
+        }
+        else if (action.type === "otp_btn_clicked") {
             return Object.assign({}, prevstate, { screenType: action.type, message: "Sending OTP" });
+        }
+        else if (action.type === "otp_resend_clicked") {
+            return Object.assign({}, prevstate, { screenType: action.type, message: "Sending OTP again" });
         }
         else {
             return prevstate;
@@ -296,7 +300,7 @@ const AuthCoreWeb: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                                                 )
                                                                 :
                                                                 (progressScreen.screenType === "otp_btn_clicked") ?
-                                                                    <AuthRecaptchaComponent screenType={progressScreen.screenType} callback={(res) => {
+                                                                    <AuthRecaptchaComponent callback={(res) => {
                                                                         console.log(res);
                                                                         // setProgressScreen({ type: "otp_sent" });
                                                                         setLoadingVisibility(true);
@@ -310,10 +314,7 @@ const AuthCoreWeb: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                                                         (
                                                                             <>
                                                                                 <IonButton disabled={timer > 0} fill="outline" className="action-btn" onClick={() => {
-
-                                                                                    otpSendFunction(() => {
-                                                                                        setProgressScreen({ type: "otp_resent" })
-                                                                                    })
+                                                                                    setProgressScreen({ type: "otp_resend_clicked" })
                                                                                 }}>
                                                                                     {timer === 0 ? `Send OTP Again` : `${timer} seconds`}
                                                                                 </IonButton>
@@ -328,7 +329,9 @@ const AuthCoreWeb: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                                                                             batchId: class_id_string.current,
                                                                                             phone: phone_string.current,
                                                                                             name: student_name_string.current
-                                                                                        }).then(() => { }).catch(err => {
+                                                                                        }).then(() => {
+                                                                                            showToast("Logging in...")
+                                                                                        }).catch(err => {
                                                                                             showToast("Error updating data.")
                                                                                         }).finally(() => {
                                                                                             setLoadingVisibility(false);
@@ -345,7 +348,18 @@ const AuthCoreWeb: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                                                             </>
                                                                         )
                                                                         :
-                                                                        <div></div>
+                                                                        (progressScreen.screenType === "otp_resend_clicked") ?
+                                                                            <AuthRecaptchaComponent callback={(res) => {
+                                                                                console.log(res);
+                                                                                // setProgressScreen({ type: "otp_sent" });
+                                                                                setLoadingVisibility(true);
+                                                                                otpSendFunction(() => {
+                                                                                    setProgressScreen({ type: "otp_sent" });
+                                                                                    setLoadingVisibility(false);
+                                                                                })
+                                                                            }} />
+                                                                            :
+                                                                            <div></div>
 
                                                         }
                                                     </div>
@@ -366,12 +380,13 @@ const AuthCoreWeb: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
         </IonPage>
     )
 }
-const AuthRecaptchaComponent: React.FC<{ screenType: string, callback: (res: any) => void; }> = ({ screenType, callback }) => {
+const AuthRecaptchaComponent: React.FC<{ callback: (res: any) => void; }> = ({ callback }) => {
+    const id = "recaptcha-sign-in" + (Math.random() * 5);
     useLayoutEffect(() => {
         console.log("Mounted");
 
         window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
-            "recaptcha-sign-in",
+            id,
             {
                 size: "normal",
                 callback
@@ -384,7 +399,7 @@ const AuthRecaptchaComponent: React.FC<{ screenType: string, callback: (res: any
         });
     }, [])
     return (
-        <div id="recaptcha-sign-in"
+        <div id={id}
         // style={{ visibility: screenType === "get_started_clicked" ? "visible" : "hidden" }}
         />
     )
