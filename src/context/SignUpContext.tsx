@@ -7,6 +7,10 @@ export const SignUpContext = createContext<SignUpContextInterface | null>(null);
 
 export const SignUpContextProvider = (props: { children: any }) => {
     const signInCallBack = useRef<(() => void)>(() => { });
+    const classId = useRef<string>("");
+    const setClassId = (id: string) => {
+        classId.current = id;
+    }
     useEffect(() => {
         const checkUser = FirebaseAuthentication.onAuthStateChanged().subscribe((user) => {
             if (user) {
@@ -22,6 +26,7 @@ export const SignUpContextProvider = (props: { children: any }) => {
     const setSignInCallBack = (callback: () => void) => {
         signInCallBack.current = callback;
     }
+
     const verifIdFirebase = useRef<string>("");
     const sendOtpCapacitor = (phoneNum: string) => {
         return new Promise((resolve, reject) => {
@@ -66,7 +71,7 @@ export const SignUpContextProvider = (props: { children: any }) => {
         verifIdFirebase.current = "";
     }
     return (
-        <SignUpContext.Provider value={{ setSignInCallBack, sendOtpCapacitor, verifyOtpCapacitor }}>
+        <SignUpContext.Provider value={{ setSignInCallBack, sendOtpCapacitor, verifyOtpCapacitor, setClassId }}>
             {props.children}
         </SignUpContext.Provider>
     )

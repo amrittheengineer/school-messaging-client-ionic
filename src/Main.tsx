@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { IonApp, IonPage, IonRouterOutlet, IonContent, IonSpinner, useIonViewWillEnter } from '@ionic/react';
+import { IonApp, IonPage, IonRouterOutlet, IonContent, IonSpinner, useIonViewWillEnter, isPlatform } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Route, RouteComponentProps, Redirect } from 'react-router';
 import { GlobalStateContextProvider } from './context/GlobalStateContext'
@@ -8,10 +8,7 @@ import App from './App';
 import Auth from './pages/Auth';
 import { Storage } from '@capacitor/core';
 import "./pages/Tab.css";
-import Album from './pages/Album';
-import Gallery from './pages/Gallery';
-import PostGallery from './pages/PostGallery';
-import VideoPlayer from './pages/VideoPlayer';
+import { firebase } from "./modules/firebase";
 
 // const AppWrapper: React.FC = () => {
 //     return (
@@ -77,11 +74,11 @@ const Main: React.FC = () => {
         </GlobalStateContextProvider>
     )
 }
-
+// Storage.set({ key: "userCred", value: "" })
 const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
     useEffect(() => {
         Storage.get({ key: "userCred" }).then(({ value }) => {
-            if (!value) {
+            if (value) {
                 history.replace("/app/tab2")
             } else {
                 throw new Error("No user")

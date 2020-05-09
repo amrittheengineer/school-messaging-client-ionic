@@ -59,10 +59,17 @@ export interface Video {
   type: string;
 }
 
+export interface SignUpContextWebInterface {
+  setSignInCallBack: (callback: () => void) => void;
+  sendOtpWeb: (phone: string) => Promise<any>;
+  verifyOtpWeb: (otp: string) => Promise<any>;
+  updateUserData: (data: { user_exists: boolean, name?: string, batchId: string, phone: string }) => Promise<any>;
+}
 export interface SignUpContextInterface {
   setSignInCallBack: (callback: () => void) => void;
   sendOtpCapacitor: (phone: string) => Promise<any>;
   verifyOtpCapacitor: (otp: string) => Promise<any>;
+  setClassId: (id: string) => void;
 }
 export interface Photo {
   url: string;

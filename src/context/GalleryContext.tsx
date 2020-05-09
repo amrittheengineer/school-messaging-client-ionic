@@ -8,28 +8,13 @@ import {
   Video,
   Photo
 } from "../interface/TypeInterface";
-
-import firebase from "firebase/app";
+import { storage } from '../modules/firebase';
 import { Plugins, FilesystemDirectory } from '@capacitor/core';
 import "firebase/storage";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBjWJwgkI8ABEPtmDUxJwzXrwdiQsNX1VM",
-  authDomain: "st-marys-school-d6378.firebaseapp.com",
-  databaseURL: "https://st-marys-school-d6378.firebaseio.com",
-  projectId: "st-marys-school-d6378",
-  storageBucket: "st-marys-school-d6378.appspot.com",
-  messagingSenderId: "360108059082",
-  appId: "1:360108059082:web:8753e636401bce4acac733",
-  measurementId: "G-TGBS4PYXMD",
-};
+
 
 const { Filesystem } = Plugins;
-
-
-
-const app = firebase.initializeApp(firebaseConfig);
-const storage = app.storage();
 
 export const GalleryContext = React.createContext<GalleryContextInterface | null>(
   null
