@@ -18,7 +18,7 @@ const request = function (apiPath: string, options: any) {
       // mode: "cors",
     },
   });
-  console.log("Making request");
+  console.log("Making request " + apiPath);
 
   return {
     requestPromise: client(Object.assign({ url: apiPath }, options)),

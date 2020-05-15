@@ -68,15 +68,16 @@ export const SignUpContextWebProvider = (props: { children: any }) => {
                     token = tokenVal
                 }).catch(err => {
                     console.log(err);
-
                     // alert("Token fetch failed")
                 }).finally(() => {
-                    alert(token);
+                    // alert(token);
                     updateAPIFunction(data, token, resolve, reject);
+                    Storage.set({ key: "batchId", value: data.batchId });
 
                 })
             } else {
                 updateAPIFunction(data, token, resolve, reject);
+                Storage.set({ key: "batchId", value: data.batchId });
             }
 
 
@@ -90,8 +91,7 @@ export const SignUpContextWebProvider = (props: { children: any }) => {
                 console.log(user);
 
                 Storage.set({ key: "userCred", value: JSON.stringify(user) }).then(() => {
-                    console.log(signInCallBack["current"]);
-
+                    // console.log(signInCallBack["current"]);
                     signInCallBack["current"]();
                 });
             }
@@ -105,10 +105,10 @@ export const SignUpContextWebProvider = (props: { children: any }) => {
 
         signInCallBack.current = callback;
     }
-    const tempLogin = () => {
-        console.log(signInCallBack);
-        signInCallBack["current"]();
-    }
+    // const tempLogin = () => {
+    //     console.log(signInCallBack);
+    //     signInCallBack["current"]();
+    // }
     const confirmationResult = useRef<firebase.auth.ConfirmationResult | null>(null);
     const sendOtpWeb = (phoneNum: string) => {
 

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import axios, { Canceler, AxiosResponse } from "axios";
+import axios, { Canceler, AxiosResponse, Cancel, CancelToken } from "axios";
 import request from "../modules/request";
 import {
   ClassAnnouncement,
@@ -7,6 +7,7 @@ import {
   Announcement,
   User,
 } from "../interface/TypeInterface";
+import { Storage } from "@capacitor/core";
 
 export const GlobalStateContext = createContext<GlobalStateContextInterface | null>(
   null
@@ -14,18 +15,29 @@ export const GlobalStateContext = createContext<GlobalStateContextInterface | nu
 
 export const GlobalStateContextProvider = (props: { children: any }) => {
   const [announcements, setAnnouncements] = useState<Array<Announcement>>([]);
+  const [hasMoreAnnouncements, setHasMoreAnnouncements] = useState<boolean>(true);
+  const [announcementsLoading, setAnnouncementsLoading] = useState<boolean>(false);
   const [hideTabBar, setHideTabBar] = useState<boolean>(false);
   const [classAnnouncements, setClassAnnouncements] = useState<
     Array<ClassAnnouncement>
   >([]);
-  const [user, setUser] = useState<User | null>({
-    name: "Amrit",
-    phone: "6385141855",
-    batchId: "03ee1740-7b40-11ea-881d-4f34ce240b83",
-  });
+  const [hasMoreClassAnnouncements, setHasMoreClassAnnouncements] = useState<boolean>(true);
+  const [classAnnouncementsLoading, setClassAnnouncementsLoading] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  const updateUser = () => {
+    Storage.get({ key: "batchId" }).then(batchId => {
+      console.log(batchId.value);
+
+      setUser({ batchId: batchId.value });
+    }).catch((err) => {
+      console.log(err);
+    })
+  }
 
   const [currentPost, setCurrentPost] = useState<Array<string>>([]);
 
+  useEffect(updateUser, []);
 
   const updateAnnouncements = (callback: () => void) => {
     if (user && user.batchId) {
@@ -38,7 +50,7 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
       requestPromise
         .then((res) => {
           const { data } = res.data;
-          // console.log(data.data);
+          console.log(data);
           setAnnouncements((prev) => data);
         })
         .catch((err) => console.log(err))
@@ -47,6 +59,60 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         });
     }
   };
+
+  const loadMoreAnnouncements = (source?: CancelToken) => {
+    if (announcementsLoading || !hasMoreAnnouncements) {
+      return;
+    }
+    setAnnouncementsLoading(true);
+    const timeStamp: number = announcements.length ? announcements[announcements.length - 1].timeStamp : Date.now();
+
+    const { requestPromise } = request(
+      "/api/student/announcements/" + timeStamp,
+      { method: "GET", cancelToken: source }
+    );
+
+    requestPromise
+      .then((res) => {
+        const { data } = res.data;
+        if (!data.length) {
+          setHasMoreAnnouncements(false);
+        } else {
+          setAnnouncements(prev => [...prev, ...data]);
+        }
+      })
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setAnnouncementsLoading(false);
+      })
+  }
+  const loadMoreClassAnnouncements = (source?: CancelToken) => {
+    if (classAnnouncementsLoading || !hasMoreClassAnnouncements) {
+      return;
+    }
+    setClassAnnouncementsLoading(true);
+    const timeStamp: number = classAnnouncements.length ? classAnnouncements[classAnnouncements.length - 1].timeStamp : Date.now();
+
+    const { requestPromise } = request(
+      `/api/student/class-announcements/${user!.batchId}/${timeStamp}`,
+      { method: "GET", cancelToken: source }
+    );
+    requestPromise
+      .then((res: AxiosResponse<Array<ClassAnnouncement>>) => {
+        const data = res.data;
+        if (!data.length) {
+          setHasMoreClassAnnouncements(false);
+        } else {
+          setClassAnnouncements(prev => [
+            ...prev, ...data.sort((next, current) => current.timeStamp - next.timeStamp),
+          ]);
+        }
+      })
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setClassAnnouncementsLoading(false);
+      })
+  }
 
   const loadResourceURL = (url: string) => {
     return new Promise((resolve, reject) => {
@@ -85,9 +151,17 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
     }
   };
 
-  // setInterval(() => {
-  //   setClassAnnouncements((prev) => [...prev, ...prev]);
-  // }, 10000);
+  const resetAnnouncements = () => {
+    setAnnouncements(prev => []);
+    setHasMoreAnnouncements(true);
+    setAnnouncementsLoading(false);
+  }
+  const resetClassAnnouncements = () => {
+    setClassAnnouncements(prev => []);
+    setHasMoreClassAnnouncements(true);
+    setClassAnnouncementsLoading(false);
+  }
+
 
   useEffect(() => {
     let cancel1: Canceler, cancel2: Canceler;
@@ -99,32 +173,12 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
       let source2 = new axios.CancelToken((c) => {
         cancel2 = c;
       });
-      const requestPromise1 = request(
-        "/api/student/class-announcements/" + user.batchId,
-        { method: "GET", cancelToken: source1 }
-      ).requestPromise;
-      const requestPromise2 = request(
-        "/api/student/announcements/" + Date.now(),
-        { method: "GET", cancelToken: source2 }
-      ).requestPromise;
 
-      requestPromise1
-        .then((res: AxiosResponse<Array<ClassAnnouncement>>) => {
-          const data = res.data;
-          setClassAnnouncements([
-            ...data.sort((next, current) => current.timeStamp - next.timeStamp),
-          ]);
-        })
-        .catch((err) => console.log(err));
+      loadMoreAnnouncements(source2);
 
-      requestPromise2
-        .then((res) => {
-          const { data } = res.data;
-          console.log(data);
+      loadMoreClassAnnouncements(source1);
 
-          setAnnouncements([...data]);
-        })
-        .catch((err) => console.log(err));
+
     }
     return () => {
       if (cancel1) cancel1();
@@ -156,7 +210,17 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         hideTabBar,
         setHideTabBar,
         loadResourceURL,
-        currentPost, setCurrentPost
+        currentPost,
+        setCurrentPost,
+        updateUser,
+        announcementsLoading,
+        hasMoreAnnouncements,
+        loadMoreAnnouncements,
+        resetAnnouncements,
+        resetClassAnnouncements,
+        hasMoreClassAnnouncements,
+        loadMoreClassAnnouncements,
+        classAnnouncementsLoading
       }}
     >
       {props.children}

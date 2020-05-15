@@ -305,6 +305,7 @@ $color: #e74c3c;
       flex-direction: column;
       justify-content: center;
       .gallery-image-holder {
+        touch-action: pan-x pan-y pinch-zoom;
         align-self: center;
         // flex: 1;
         display: flex;

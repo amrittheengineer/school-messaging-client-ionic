@@ -78,7 +78,7 @@ const Main: React.FC = () => {
 const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
     useEffect(() => {
         Storage.get({ key: "userCred" }).then(({ value }) => {
-            if (value) {
+            if (!value) {
                 history.replace("/app/tab2")
             } else {
                 throw new Error("No user")
@@ -105,7 +105,6 @@ const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
             <IonContent>
                 <div style={{ flex: 1 }}>
                     <IonSpinner />
-                    <p>Hello</p>
                 </div>
             </IonContent>
         </IonPage>

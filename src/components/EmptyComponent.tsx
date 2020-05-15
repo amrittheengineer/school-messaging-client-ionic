@@ -1,6 +1,7 @@
 import React from 'react';
+import { IonSpinner } from '@ionic/react';
 
-const EmptyComponent: React.FC = () => {
+export const EmptyComponent: React.FC = () => {
     return (
         <div className="album-progress-container">
             <div className="album-progress">
@@ -14,4 +15,13 @@ const EmptyComponent: React.FC = () => {
     );
 };
 
-export default EmptyComponent;
+export const Loading: React.FC = () => {
+    return (
+        <div className="album-progress-container">
+            <div className="album-progress">
+                <IonSpinner />
+                <div>Loading</div>
+            </div>
+        </div>
+    );
+};

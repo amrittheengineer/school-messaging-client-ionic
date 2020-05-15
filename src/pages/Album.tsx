@@ -28,7 +28,7 @@ import { playCircle } from "ionicons/icons";
 import { useSpring, animated } from "react-spring";
 import { GlobalStateContext } from "../context/GlobalStateContext";
 import { Capacitor } from '@capacitor/core'
-import EmptyComponent from "../components/EmptyComponent";
+import { EmptyComponent, Loading } from "../components/EmptyComponent";
 
 const Application = Plugins.App;
 const { LocalNotifications } = Plugins;
@@ -41,15 +41,12 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
   history,
 }) => {
   const context = useContext(GalleryContext);
-  const setHideTabBar = useContext(GlobalStateContext)!.setHideTabBar;
 
   const [selected, setSelected] = useState<string>("photos");
   const [downloading, setDownloading] = useState<string>("");
 
   useEffect(() => {
     Application.removeAllListeners();
-
-    setHideTabBar(true);
 
     context?.setCurrentAlbum((previousAlbum) => {
       if (previousAlbum === match.params.id) {
@@ -70,7 +67,6 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
       Application.addListener("backButton", () => {
         Application.exitApp();
       });
-      setHideTabBar(false);
     };
   }, []);
 
@@ -114,37 +110,37 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
         />
       </IonReactRouter> */}
         {selected === "photos" ? (
-          context?.albumPhotos.map((image, ind) => {
+          // context?.albumPhotos.map((image, ind) => {
 
-            return (
-              <div key={`${ind}`} onClick={() => {
-                history.push("/app/image-gallery/" + ind);
-              }} className="image-thumbnail-container">
-                <IonImg src={image.url} className="image-thumbnail" />
-              </div>
-            );
-          })
-          // <FlatList
-          //   list={context ? context.albumPhotos : []}
-          //   renderItem={(image, ind) => {
-          //     return (
-          //       <div key={`${ind}`} onClick={() => {
-          //         history.push("/image-gallery/" + ind);
-          //       }} className="image-thumbnail-container">
-          //         <IonImg src={image.url} className="image-thumbnail" />
-          //       </div>
-          //     );
-          //   }}
-          //   renderWhenEmpty={() => {
-          //     if (context?.hasMoreItems) return <Loading />;
-          //     else return <EmptyComponent />;
-          //   }}
-          //   // pagination={true}
-          //   hasMoreItems={context?.hasMoreItems}
-          //   loadMoreItems={() => {
-          //     context?.loadFromStorage(match.params.id);
-          //   }}
-          // />
+          //   return (
+          //     <div key={`${ind}`} onClick={() => {
+          //       history.push("/app/image-gallery/" + ind);
+          //     }} className="image-thumbnail-container">
+          //       <IonImg src={image.url} className="image-thumbnail" />
+          //     </div>
+          //   );
+          // })
+          <FlatList
+            list={context ? context.albumPhotos : []}
+            renderItem={(image, ind) => {
+              return (
+                <div key={`${ind}`} onClick={() => {
+                  history.push("/app/image-gallery/" + ind);
+                }} className="image-thumbnail-container">
+                  <IonImg src={image.url} className="image-thumbnail" />
+                </div>
+              );
+            }}
+            renderWhenEmpty={() => {
+              if (context?.hasMorePhotos) return <Loading />;
+              else return <EmptyComponent />;
+            }}
+            // pagination={true}
+            hasMoreItems={context?.hasMorePhotos}
+            loadMoreItems={() => {
+              context?.loadImageFromStorage(match.params.id);
+            }}
+          />
         ) : (
             <FlatList
               list={context ? context.albumVideos : []}
@@ -155,7 +151,6 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
                     delay={ind}
                     key={ind}
                     onClick={() => {
-                      setHideTabBar(true);
                       history.push("/app/video-player/?url=" + encodeURIComponent(video.url));
                     }}
                     downloadVideo={() => {
@@ -174,7 +169,7 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
                             },
                           ],
                         })
-                      }).catch(err => {
+                      }).catch((_) => {
                         setDownloading("");
                       })
                       // var link = document.createElement("a");
@@ -196,14 +191,14 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
                 // return <p key={`${ind}`}>{url}</p>;
               }}
               renderWhenEmpty={() => {
-                if (context?.hasMoreItems) return <Loading />;
+                if (context?.hasMoreVideos) return <Loading />;
                 else return <EmptyComponent />;
               }}
               // pagination={true}
-              hasMoreItems={context?.hasMoreItems}
+              hasMoreItems={context?.hasMoreVideos}
               loadMoreItems={() => {
                 // console.log("Called API");
-                context?.loadFromStorage(match.params.id);
+                context?.loadVideoFromStorage(match.params.id);
               }}
             />
           )}
@@ -212,17 +207,6 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
   );
 };
 
-
-const Loading: React.FC = () => {
-  return (
-    <div className="album-progress-container">
-      <div className="album-progress">
-        <IonSpinner />
-        <div>Loading</div>
-      </div>
-    </div>
-  );
-};
 
 const VideoCard: React.FC<{
   video: Video;

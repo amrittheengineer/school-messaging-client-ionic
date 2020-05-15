@@ -33,8 +33,8 @@ const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
               </div>
               <div className="title">Gallery</div>
               <div className="actions">
-                <IonIcon icon={filter} />
-                <IonIcon icon={search} />
+                {/* <IonIcon icon={filter} />
+                <IonIcon icon={search} /> */}
               </div>
             </div>
           </div>
@@ -77,10 +77,9 @@ const AlbumCard: React.FC<{
         alt=""
       /> */}
         <div className="album-card">
-
           <div className="album-thumbnail">
             <IonThumbnail>
-              <IonImg src={getStorageURL(album.id, "thumbs/thumb@256_" + album.thumbnail)} />
+              <IonImg src={getStorageURL(album.id, "images/thumbs/thumb@256_" + album.thumbnail)} />
             </IonThumbnail>
           </div>
           <div className="album-meta">

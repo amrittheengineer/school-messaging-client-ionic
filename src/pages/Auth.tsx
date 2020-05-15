@@ -143,8 +143,6 @@ const AuthCoreWeb: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                 // Toast.show({ text: "No class exists.", duration: "long" });
             } else {
                 setInputDisabled(true);
-
-
                 setProgressScreen({ type: "otp_btn_clicked" });
             }
         }).catch(err => {

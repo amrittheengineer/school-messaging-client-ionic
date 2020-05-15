@@ -47,7 +47,7 @@ const Gallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match }) =>
                                                         //     },
                                                         //   ],
                                                         // })
-                                                    }).catch(err => {
+                                                    }).catch(_err => {
                                                         setDownloading("");
                                                     })
                                                 }} className="download-icon" />

@@ -1,25 +1,35 @@
-import React, { useContext, useState } from "react";
-import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem, IonLoading } from "@ionic/react";
+import React, { useContext, useState, useEffect, SetStateAction } from "react";
+import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem, IonLoading, IonRefresher, IonRefresherContent } from "@ionic/react";
 import "./Tab.css";
-import { chatbubbleEllipses, search } from "ionicons/icons";
+import { chatbubbleEllipses, search, linkOutline, linkSharp } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
 import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
 import { Announcement } from "../interface/TypeInterface";
 import { useSpring, animated } from "react-spring";
 import FlatList from "flatlist-react";
-import EmptyComponent from "../components/EmptyComponent";
+import { EmptyComponent, Loading } from "../components/EmptyComponent";
 import { Toast } from "@capacitor/core";
+import linkIcon from '../images/link.svg';
 
 const { timeSince, getStorageURL } = Constant;
 
-const Tab1: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) => {
-  const announcements = useContext(GlobalStateContext)?.announcements;
-  const setCurrentPost = useContext(GlobalStateContext)!.setCurrentPost;
+const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) => {
+  const { announcements, setCurrentPost, hasMoreAnnouncements, loadMoreAnnouncements, announcementsLoading, resetAnnouncements } = useContext(GlobalStateContext)!;
   const [loading, setLoading] = useState<boolean>(false);
   return (
     <IonPage>
       <IonContent>
+        <IonRefresher slot="fixed" onIonRefresh={(event) => {
+          resetAnnouncements();
+          loadMoreAnnouncements();
+          // alert(Object.keys(event.detail))
+          event.detail.complete();
+        }}
+
+        >
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
         <IonLoading message="Loading" isOpen={loading} />
         <div className="page-container">
           <div className="header">
@@ -40,7 +50,7 @@ const Tab1: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) =
                     }
                   }}
                 /> */}
-                <IonIcon icon={search} />
+                {/* <IonIcon icon={search} /> */}
               </div>
             </div>
           </div>
@@ -69,7 +79,14 @@ const Tab1: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) =
                     }
                   />
                 )}
-                renderWhenEmpty={() => <EmptyComponent />}
+                hasMoreItems={hasMoreAnnouncements}
+                paginationLoadingIndicator={<Loading />}
+                paginationLoadingIndicatorPosition="center"
+                loadMoreItems={() => loadMoreAnnouncements()}
+                renderWhenEmpty={() => {
+                  if (announcementsLoading) return <Loading />;
+                  else return <EmptyComponent />;
+                }}
               />
             </div>
           </div>
@@ -104,7 +121,7 @@ const PostCard: React.FC<{
                 openPostImage(index)
               }}>
                 <IonThumbnail className="post-image-thumbnail" >
-                  <IonImg src={getStorageURL("announcements/" + item.id, photo)} />
+                  <IonImg src={getStorageURL("announcements/" + item.id, "thumbs/thumb@256_" + photo)} />
                 </IonThumbnail>
               </div>
             )
@@ -112,57 +129,93 @@ const PostCard: React.FC<{
         }
       </div>
       {
-        item.url?.length && item.url?.map((url, index) => {
-          return (
-            <IonCard key={index} onClick={() => {
-              if (
-                url.url &&
-                (url.url?.indexOf("youtube.com/watch") !== -1 ||
-                  url.url?.indexOf("youtu.be/") !== -1)
-              ) {
-
-                setLoading(true);
-                loadResourceURL(url.url).then(resourceUrl => {
-                  setLoading(false);
-                  openVideoPlayer(resourceUrl[0].url);
-                }).catch((err) => {
-                  alert(err);
-                  setLoading(false);
-                  Toast.show({
-                    text: "Sorry, try again later",
-                    duration: "short",
-                  })
-                })
-              } else {
-
-                window.open(url.url, "_system");
-              }
-            }}>
-              <div className="url-card">
-
-                <div className="url-thumbnail">
-                  <IonThumbnail>
-                    <IonImg src={url.thumbnail} />
-                  </IonThumbnail>
-                </div>
-                <div className="url-meta">
-                  <IonItem>
-                    <div style={{ wordBreak: "break-all" }}>
-
-                      {url.title ? url.title : url.url}
-                    </div>
-
-                  </IonItem>
-                </div>
-              </div>
-            </IonCard>
-          )
-        })
+        item.url?.map((url, index) => <URLCard url={url} key={index} setLoading={setLoading} openVideoPlayer={openVideoPlayer} />)
       }
-
       <div className="author">{`${timeSince(item.timeStamp)}`}</div>
     </animated.div>
   );
 };
 
-export default Tab1;
+const URLCard: React.FC<{
+  url: string,
+  setLoading: (load: boolean) => void,
+  openVideoPlayer: (url: string) => void;
+
+}> = ({ url, setLoading, openVideoPlayer }) => {
+  const isYoutube: boolean = (url?.indexOf("youtube.com/watch") !== -1 ||
+    url?.indexOf("youtu.be/") !== -1);
+
+  const [link, setLink] = useState<string>(url);
+  const [thumbnail, setThumbnail] = useState<string>("");
+  const loadResourceURL = useContext(GlobalStateContext)!.loadResourceURL;
+
+  useEffect(() => {
+    if (isYoutube) {
+      fetch(
+        `https://cors-bypasss.herokuapp.com/https://www.youtube.com/oembed?url=${url}&format=json`,
+        {
+          mode: "cors",
+        }
+      )
+        .then((res) => {
+          // console.log(res);
+          return res.json();
+        })
+        .then((res) => {
+          console.log({
+            title: res.title,
+            thumbnail: res.thumbnail_url,
+          });
+
+          setLink(res.title);
+          setThumbnail(res.thumbnail_url);
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [])
+
+  return (
+    <IonCard onClick={() => {
+      if (isYoutube) {
+        setLoading(true);
+        loadResourceURL(url).then(resourceUrl => {
+          setLoading(false);
+          openVideoPlayer(resourceUrl[0].url);
+        }).catch((err) => {
+          alert(err);
+          setLoading(false);
+          Toast.show({
+            text: "Sorry, try again later",
+            duration: "short",
+          })
+        })
+      } else {
+        window.open(url, "_system");
+      }
+    }}>
+      <div className="url-card">
+
+        <div className="url-thumbnail">
+          <IonThumbnail>
+            <IonImg src={thumbnail || linkIcon} />
+          </IonThumbnail>
+          {/* {
+            thumbnail ?
+              :
+              <IonIcon className="hyperlink-icon" icon={linkOutline} />
+          } */}
+        </div>
+        <div className="url-meta">
+          <IonItem>
+            <div style={{ wordBreak: "break-all" }}>
+              {link}
+            </div>
+
+          </IonItem>
+        </div>
+      </div>
+    </IonCard>
+  )
+}
+
+export default Tab2;

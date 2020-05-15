@@ -423,6 +423,8 @@
 }
 
 .gallery-slides .image-slide .gallery-image-container .gallery-image-holder {
+  -ms-touch-action: pan-x pan-y pinch-zoom;
+      touch-action: pan-x pan-y pinch-zoom;
   -ms-flex-item-align: center;
       align-self: center;
   display: -webkit-box;

@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { IonContent, IonPage, IonIcon } from "@ionic/react";
+import { IonContent, IonPage, IonIcon, IonRefresher, IonRefresherContent } from "@ionic/react";
 import "./Tab.css";
 import { home, search, filter } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
@@ -7,16 +7,25 @@ import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
 import { ClassAnnouncement } from "../interface/TypeInterface";
 import { useSpring, animated } from "react-spring";
-import EmptyComponent from "../components/EmptyComponent";
+import { EmptyComponent, Loading } from "../components/EmptyComponent";
 
 import FlatList from "flatlist-react";
 const { timeSince } = Constant;
 
 const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
-  const classAnnouncements = useContext(GlobalStateContext)?.classAnnouncements;
+  const { classAnnouncements, resetClassAnnouncements, loadMoreClassAnnouncements, hasMoreClassAnnouncements, classAnnouncementsLoading } = useContext(GlobalStateContext)!;
   return (
     <IonPage>
       <IonContent>
+        <IonRefresher slot="fixed" onIonRefresh={(event) => {
+          resetClassAnnouncements();
+          loadMoreClassAnnouncements();
+          event.detail.complete();
+        }}
+
+        >
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
         <div className="page-container">
           <div className="header">
             <div className="tab-name-container">
@@ -25,7 +34,7 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
               </div>
               <div className="title">Announcements</div>
               <div className="actions">
-                <IonIcon
+                {/* <IonIcon
                   icon={filter}
                   onClick={() => {
                     // if (setClassAnnouncements && classAnnouncements) {
@@ -36,7 +45,7 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
                     // }
                   }}
                 />
-                <IonIcon icon={search} />
+                <IonIcon icon={search} /> */}
               </div>
             </div>
           </div>
@@ -56,7 +65,14 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
                     index={index}
                   />
                 )}
-                renderWhenEmpty={() => <EmptyComponent />}
+                hasMoreItems={hasMoreClassAnnouncements}
+                paginationLoadingIndicator={<Loading />}
+                paginationLoadingIndicatorPosition="center"
+                loadMoreItems={() => loadMoreClassAnnouncements()}
+                renderWhenEmpty={() => {
+                  if (classAnnouncementsLoading) return <Loading />;
+                  else return <EmptyComponent />;
+                }}
               />
               {/* {classAnnouncements?.map(
                 (announcemnent: ClassAnnouncement, index: number) => (

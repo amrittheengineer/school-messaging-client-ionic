@@ -1,4 +1,5 @@
 import { SetStateAction, Dispatch } from "react";
+import { CancelToken } from "axios";
 
 export interface GlobalStateContextInterface {
   user: User | null;
@@ -13,6 +14,15 @@ export interface GlobalStateContextInterface {
   loadResourceURL: (url: string) => Promise<any>;
   currentPost: Array<string>;
   setCurrentPost: Dispatch<SetStateAction<Array<string>>>;
+  updateUser: () => void;
+  hasMoreAnnouncements: boolean;
+  announcementsLoading: boolean;
+  loadMoreAnnouncements: (cancel?: CancelToken) => void;
+  resetAnnouncements: () => void;
+  classAnnouncementsLoading: boolean;
+  loadMoreClassAnnouncements: (cancel?: CancelToken) => void;
+  resetClassAnnouncements: () => void;
+  hasMoreClassAnnouncements: boolean;
 }
 // interface Props<T> {
 //   list: T[];
@@ -90,18 +100,21 @@ export interface GalleryContextInterface {
   albumPhotos: Array<Photo>;
   setAlbumPhotos: Dispatch<SetStateAction<Array<Photo>>>; //(photos: Array<string>) => void;
   albumVideos: Array<Video>;
-  setalbumVideos: Dispatch<SetStateAction<Array<Video>>>; //(photos: Array<string>) => void;
+  setAlbumVideos: Dispatch<SetStateAction<Array<Video>>>; //(photos: Array<string>) => void;
   albumList: Array<Album>;
   resetStorageRef: () => void;
-  loadFromStorage: (directory: string) => void;
-  contentLoading: boolean;
-  hasMoreItems: boolean;
+  loadImageFromStorage: (directory: string) => void;
+  loadVideoFromStorage: (directory: string) => void;
+  contentPhotosLoading: boolean;
+  contentVideosLoading: boolean;
+  hasMorePhotos: boolean;
+  hasMoreVideos: boolean;
   downloadFile: (url: string, name: string, type: string) => Promise<any>;
 }
 
 export interface User {
-  name: string;
-  phone: string;
+  // name: string;
+  // phone: string;
   batchId: string;
 }
 
@@ -110,7 +123,7 @@ export interface ClassAnnouncement extends Broadcast {
 }
 export interface Announcement extends Broadcast {
   photos?: Array<string>;
-  url?: Array<URLObject>;
+  url?: Array<string>;
 }
 export interface URLObject {
   thumbnail: string;

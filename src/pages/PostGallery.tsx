@@ -43,32 +43,27 @@ const PostGallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match }
                             return (
 
                                 <IonSlide key={index} className="image-slide">
-                                    <TransformWrapper options={{ centerContent: true }}  >
-                                        <div className="gallery-image-container">
-                                            <div className="image-actions">
+                                    <div className="gallery-image-container">
+                                        <div className="image-actions">
 
-                                                <IonIcon icon={downloadOutline} onClick={() => {
-                                                    setDownloading("Downloading");
-                                                    downloadFile(photo, `${Date.now()}.png`, "image/png").then(() => {
-                                                        setDownloading("");
-                                                        Toast.show({ text: "Downloaded.", duration: "short" });
+                                            <IonIcon icon={downloadOutline} onClick={() => {
+                                                setDownloading("Downloading");
+                                                downloadFile(photo, `${Date.now()}.png`, "image/png").then(() => {
+                                                    setDownloading("");
+                                                    Toast.show({ text: "Downloaded.", duration: "short" });
 
-                                                    }).catch(err => {
-                                                        Toast.show({ text: "Error in downloading.", duration: "short" });
-                                                        setDownloading("");
-                                                    })
-                                                }} className="download-icon" />
-                                            </div>
-                                            <div className="gallery-image-holder">
-                                                <div className="gallery-transform">
-
-                                                    <TransformComponent>
-                                                        <IonImg className="gallery-image" src={photo} />
-                                                    </TransformComponent>
-                                                </div>
+                                                }).catch(err => {
+                                                    Toast.show({ text: "Error in downloading.", duration: "short" });
+                                                    setDownloading("");
+                                                })
+                                            }} className="download-icon" />
+                                        </div>
+                                        <div className="gallery-image-holder">
+                                            <div className="gallery-transform">
+                                                <IonImg className="gallery-image" src={photo} />
                                             </div>
                                         </div>
-                                    </TransformWrapper>
+                                    </div>
                                 </IonSlide>
                             )
                         })
