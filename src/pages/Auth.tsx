@@ -8,7 +8,7 @@ import { firebase } from '../modules/firebase';
 // import classRoom from '../images/classroom.svg';
 import introAvatar from '../images/get_started.svg';
 import request from '../modules/request';
-import { Toast } from '@capacitor/core';
+import { Toast, Plugins } from '@capacitor/core';
 const Auth: React.FC<RouteComponentProps> = ({ history }) => {
     const onSignIn = () => {
         history.replace("/app/tab2")
@@ -416,6 +416,15 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
     const student_name_string = useRef<string>("");
     const user_exists_ref = useRef<boolean>(false);
     const [toastMessage, showToast] = useState<string>("");
+    const [closeClicked, setCloseClicked] = useState<boolean>(false);
+    const { App } = Plugins;
+    useEffect(() => {
+        if (closeClicked) {
+            setTimeout(() => {
+                setCloseClicked(false);
+            }, 3000);
+        }
+    })
     useEffect(() => {
         if (toastMessage) {
             setTimeout(() => {
@@ -423,6 +432,19 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
             }, 3000);
         }
     }, [toastMessage])
+
+    useEffect(() => {
+        App.addListener("backButton", () => {
+            if (screen !== 1 && !closeClicked) {
+                setCloseClicked(true);
+                showToast("Press back again to exit app.")
+            } else {
+                App.exitApp();
+            }
+        })
+
+        return () => App.removeAllListeners();
+    }, [screen, closeClicked])
     const otpSendDidClickAction = () => {
         // console.log(verifyCaptcha);
         // console.log(window.recaptchaVerifier);
@@ -495,7 +517,7 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                 <IonToast
                     isOpen={toastMessage !== ""}
                     message={toastMessage}
-                    duration={1000}
+                    duration={3000}
                     color="primary"
                 />
                 <div className="page-container">
@@ -536,7 +558,7 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                                             <IonCol>
                                                                 <IonItem>
                                                                     <IonLabel position="floating">Phone Number</IonLabel>
-                                                                    <IonInput onInput={e => {
+                                                                    <IonInput key="phone_num" onInput={e => {
                                                                         phone_string.current = e.currentTarget.value?.toString().trim() || "";
                                                                         // alert(phone_string.current)
 
@@ -548,7 +570,7 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                                             <IonCol>
                                                                 <IonItem>
                                                                     <IonLabel position="floating">Class Id</IonLabel>
-                                                                    <IonInput onInput={e => {
+                                                                    <IonInput key="class_id" onInput={e => {
                                                                         class_id_string.current = e.currentTarget.value?.toString().trim() || "";
                                                                     }} type="text" ></IonInput>
                                                                 </IonItem>
@@ -578,7 +600,7 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                                         <IonCol>
                                                             <IonItem>
                                                                 <IonLabel position="floating">Student Name</IonLabel>
-                                                                <IonInput onInput={e => {
+                                                                <IonInput key="student_name" onInput={e => {
                                                                     student_name_string.current = e.currentTarget.value?.toString().trim() || "";
                                                                 }} type="text" ></IonInput>
                                                             </IonItem>
@@ -590,15 +612,19 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                                                 showToast("Please enter the student name.");
                                                                 return;
                                                             }
-                                                            setLoadingVisibility(true);
+                                                            // setScreen(4);
+                                                            // setTimer(30);
+                                                            // return;
+                                                            setProgressMessage("Sending OTP")
                                                             sendOtpCapacitor(phone_string.current || "").then(() => {
                                                                 setScreen(4);
                                                                 setTimer(30);
                                                             }).catch(err => {
                                                                 // Error in sending OTP
+                                                                // alert(err);
                                                                 showToast("Error in sending OTP")
                                                             }).finally(() => {
-                                                                setLoadingVisibility(false);
+                                                                setProgressMessage("")
 
                                                             })
                                                         }}>
@@ -621,9 +647,8 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                                     <IonRow className="form-input">
                                                         <IonCol>
                                                             <IonItem>
-                                                                <IonLabel position="floating">Enter OTP</IonLabel>
-
-                                                                <IonInput onInput={e => {
+                                                                <IonLabel position="floating">Enter OTP Value</IonLabel>
+                                                                <IonInput key="otp_num" onInput={e => {
                                                                     otp_string.current = e.currentTarget.value?.toString().trim() || "";
                                                                 }} type="tel" maxlength={6} minlength={6}></IonInput>
                                                             </IonItem>

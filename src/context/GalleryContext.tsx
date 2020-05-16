@@ -38,14 +38,6 @@ export const GalleryContextProvider = (props: { children: any }) => {
     }
   }, [currentAlbum]);
 
-  const resetStorageRef = () => {
-    setAlbumPhotos([]);
-    setAlbumVideos([]);
-    setHasMorePhotos(true);
-    setHasMoreVideos(true);
-    imagesPageToken.current = "";
-  };
-
   // const downloadFileOld = (url: string, name: string) => {
   //   let f: FileTransferObject = FileTransfer.create();
   //   return new Promise((resolve, reject) => {
@@ -104,6 +96,16 @@ export const GalleryContextProvider = (props: { children: any }) => {
     })
   }
 
+
+
+  const resetStorageRef = () => {
+    setAlbumPhotos([]);
+    setAlbumVideos([]);
+    setHasMorePhotos(true);
+    setHasMoreVideos(true);
+    imagesPageToken.current = "";
+  };
+
   const loadVideoFromStorage = async (directory: string) => {
     console.log("Called");
     let data: firebase.storage.ListResult;
@@ -127,12 +129,6 @@ export const GalleryContextProvider = (props: { children: any }) => {
           maxResults: 8,
           pageToken: videosPageToken.current,
         });
-    }
-
-    if (data.nextPageToken === undefined) {
-      setHasMoreVideos(false);
-    } else {
-      videosPageToken.current = data.nextPageToken!;
     }
 
     let dataFetchPromises = data.items.map(
@@ -165,10 +161,15 @@ export const GalleryContextProvider = (props: { children: any }) => {
             }
           }
         );
+        setAlbumVideos((prev) => [...prev, ...videos]);
+        if (data.nextPageToken === undefined) {
+          setHasMoreVideos(false);
+        } else {
+          videosPageToken.current = data.nextPageToken!;
+        }
         setContentVideosLoading(false);
         // let images = d.filter((media: {type: string, url: string}) => media.type.indexOf("image") !== -1);
         // let videos = d.filter((media: {type: string, url: string}) => media.type.indexOf("video") !== -1);
-        setAlbumVideos((prev) => [...prev, ...videos]);
       }
     );
 
@@ -205,11 +206,6 @@ export const GalleryContextProvider = (props: { children: any }) => {
           pageToken: imagesPageToken.current,
         });
     }
-    if (data.nextPageToken === undefined) {
-      setHasMorePhotos(false);
-    } else {
-      imagesPageToken.current = data.nextPageToken!;
-    }
 
     let dataFetchPromises = data.items.map(
       async (item: firebase.storage.Reference) => {
@@ -242,7 +238,13 @@ export const GalleryContextProvider = (props: { children: any }) => {
         // let images = d.filter((media: {type: string, url: string}) => media.type.indexOf("image") !== -1);
         // let videos = d.filter((media: {type: string, url: string}) => media.type.indexOf("video") !== -1);
         setAlbumPhotos((prev) => [...prev, ...images]);
+        if (data.nextPageToken === undefined) {
+          setHasMorePhotos(false);
+        } else {
+          imagesPageToken.current = data.nextPageToken!;
+        }
         setContentPhotosLoading(false);
+
       }
     );
   };
@@ -285,14 +287,14 @@ export const GalleryContextProvider = (props: { children: any }) => {
         albumVideos,
         setAlbumVideos,
         albumList,
-        resetStorageRef,
         loadImageFromStorage,
         contentPhotosLoading,
         contentVideosLoading,
         hasMorePhotos,
         hasMoreVideos,
         downloadFile,
-        loadVideoFromStorage
+        loadVideoFromStorage,
+        resetStorageRef
       }}
     >
       {props.children}

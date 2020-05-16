@@ -3517,6 +3517,21 @@ copy-descriptor@^0.1.0:
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
   integrity sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
 
+cordova-plugin-firebase-authentication@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-firebase-authentication/-/cordova-plugin-firebase-authentication-3.3.0.tgz#30e2cc67ef809249bb18f0e114aa7d1045c51baa"
+  integrity sha512-LrDYxljswLLc4+cqZ2pUGw5T5Gjq0PSnFy3quwd7jh26iOqMSpqkhmglAI0MOrBiIVtQdDMkut+TwaleiamaVA==
+
+cordova-support-android-plugin@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/cordova-support-android-plugin/-/cordova-support-android-plugin-1.0.2.tgz#db5c8c34190d656d7fa116f702f103d692f492a4"
+  integrity sha512-bgvSG5/A2Z/OerfNHN7AHMV3jt+9bH6J4vw9T8R5OJRkkK+ENRBhL8qx7m6mLmBPvtQoIhCMOCRMM9fd4P/p9w==
+
+cordova-support-google-services@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/cordova-support-google-services/-/cordova-support-google-services-1.4.0.tgz#a337f53cd4648d867fe9a12e94c1cae05ddc2556"
+  integrity sha512-GQBrZtnJQmRn7J6biJrG1GD9dm3mEmH/+RoG640qkavS9CMehTJTjDJO52nlnYzKyX4AILEIzx9r9gw/Cbts3Q==
+
 core-js-compat@^3.6.2:
   version "3.6.5"
   resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.6.5.tgz#2a51d9a4e25dfd6e690251aa81f99e3c05481f1c"

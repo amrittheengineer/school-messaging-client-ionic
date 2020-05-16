@@ -1,0 +1,77 @@
+{
+  "project_info": {
+    "project_number": "360108059082",
+    "firebase_url": "https://st-marys-school-d6378.firebaseio.com",
+    "project_id": "st-marys-school-d6378",
+    "storage_bucket": "st-marys-school-d6378.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360108059082:android:e97dce85194708bccac733",
+        "android_client_info": {
+          "package_name": "com.amrit.learnings.bmicalculator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "360108059082-0ad3bhd55gp23vjdbde3e1037h20ceiu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-cz3_fz-fNBEjNZWQ5KWvF12GHH-ObDY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360108059082-0ad3bhd55gp23vjdbde3e1037h20ceiu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360108059082:android:4c371f9e4b6daf8ccac733",
+        "android_client_info": {
+          "package_name": "com.new_sample_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "360108059082-4fg176452ct3f3c62okq4koi3porl4uf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.new_sample_app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "360108059082-0ad3bhd55gp23vjdbde3e1037h20ceiu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-cz3_fz-fNBEjNZWQ5KWvF12GHH-ObDY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360108059082-0ad3bhd55gp23vjdbde3e1037h20ceiu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -8,6 +8,7 @@ import request from '../modules/request';
 
 const { PushNotifications } = Plugins
 
+
 export const SignUpContext = createContext<SignUpContextInterface | null>(null);
 
 export const SignUpContextProvider = (props: { children: any }) => {
@@ -57,7 +58,7 @@ export const SignUpContextProvider = (props: { children: any }) => {
                 (token: PushNotificationToken) => {
                     updateAPIFunction(data, token.value, resolve, reject);
                     Storage.set({ key: "batchId", value: data.batchId });
-                    alert(token.value);
+                    // alert(token.value);
                 }
             )
         })
@@ -73,10 +74,10 @@ export const SignUpContextProvider = (props: { children: any }) => {
             const dataReference = getDataRef();
             // alert(JSON.stringify(dataReference))
             // FirebaseAuthentication.signOut();
-            alert(user)
+            // alert(user)
             if (user && dataReference) {
                 updateUserData(dataReference).finally(() => {
-                    Storage.set({ key: "userCred", value: JSON.stringify(user) }).then(() => {
+                    Storage.set({ key: "userCred", value: JSON.stringify(user) }).finally(() => {
                         signInCallBack["current"]();
                     });
                 })
@@ -111,7 +112,7 @@ export const SignUpContextProvider = (props: { children: any }) => {
     const verifyOtpCapacitor = (otp: string) => {
         return new Promise((resolve, reject) => {
             try {
-                alert(verifIdFirebase.current)
+                // alert(verifIdFirebase.current)
                 if (verifIdFirebase.current.length) {
                     FirebaseAuthentication.signInWithVerificationId(
                         verifIdFirebase.current,

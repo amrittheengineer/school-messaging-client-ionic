@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "360108059082",
+    "firebase_url": "https://st-marys-school-d6378.firebaseio.com",
+    "project_id": "st-marys-school-d6378",
+    "storage_bucket": "st-marys-school-d6378.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360108059082:android:09c68571b5425069cac733",
+        "android_client_info": {
+          "package_name": "com.tecoit.app.school"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "360108059082-1pm5ak2da0scqo7clhv9nsljn69reesa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tecoit.app.school",
+            "certificate_hash": "a7418505e5a9c2c11f90df70d37a41e3c71f2a69"
+          }
+        },
+        {
+          "client_id": "360108059082-0ad3bhd55gp23vjdbde3e1037h20ceiu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-cz3_fz-fNBEjNZWQ5KWvF12GHH-ObDY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360108059082-0ad3bhd55gp23vjdbde3e1037h20ceiu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

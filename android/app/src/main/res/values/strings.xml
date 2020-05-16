@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">school-app</string>
-    <string name="title_activity_main">school-app</string>
+    <string name="app_name">School App</string>
+    <string name="title_activity_main">School App</string>
     <string name="package_name">com.tecoit.app.school</string>
     <string name="custom_url_scheme">com.tecoit.app.school</string>
 </resources>
