@@ -13,13 +13,12 @@ import FlatList from "flatlist-react";
 const { timeSince } = Constant;
 
 const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
-  const { classAnnouncements, resetClassAnnouncements, loadMoreClassAnnouncements, hasMoreClassAnnouncements, classAnnouncementsLoading } = useContext(GlobalStateContext)!;
+  const { classAnnouncements, refreshClassAnnouncements, loadMoreClassAnnouncements, hasMoreClassAnnouncements, classAnnouncementsLoading } = useContext(GlobalStateContext)!;
   return (
     <IonPage>
       <IonContent>
         <IonRefresher slot="fixed" onIonRefresh={(event) => {
-          resetClassAnnouncements();
-          loadMoreClassAnnouncements();
+          refreshClassAnnouncements();
           event.detail.complete();
         }}
 

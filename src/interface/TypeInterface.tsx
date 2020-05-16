@@ -18,10 +18,10 @@ export interface GlobalStateContextInterface {
   hasMoreAnnouncements: boolean;
   announcementsLoading: boolean;
   loadMoreAnnouncements: (cancel?: CancelToken) => void;
-  resetAnnouncements: () => void;
+  refreshAnnouncements: () => void;
   classAnnouncementsLoading: boolean;
   loadMoreClassAnnouncements: (cancel?: CancelToken) => void;
-  resetClassAnnouncements: () => void;
+  refreshClassAnnouncements: () => void;
   hasMoreClassAnnouncements: boolean;
 }
 // interface Props<T> {
@@ -68,6 +68,12 @@ export interface Video {
   timeStamp: string;
   type: string;
 }
+export interface UserDataRef {
+  user_exists: boolean,
+  name: string,
+  batchId: string,
+  phone: string
+}
 
 export interface SignUpContextWebInterface {
   setSignInCallBack: (callback: () => void) => void;
@@ -76,10 +82,12 @@ export interface SignUpContextWebInterface {
   updateUserData: (data: { user_exists: boolean, name?: string, batchId: string, phone: string }) => Promise<any>;
 }
 export interface SignUpContextInterface {
+  setDataRef: (data: UserDataRef) => void;
   setSignInCallBack: (callback: () => void) => void;
   sendOtpCapacitor: (phone: string) => Promise<any>;
   verifyOtpCapacitor: (otp: string) => Promise<any>;
   setClassId: (id: string) => void;
+  updateUserData: (data: { user_exists: boolean, name?: string, batchId: string, phone: string }) => Promise<any>;
 }
 export interface Photo {
   url: string;

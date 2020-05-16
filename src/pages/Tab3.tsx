@@ -18,9 +18,6 @@ const { getStorageURL } = Constant;
 
 const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
   const albumList = useContext(GalleryContext)!.albumList;
-  useEffect(() => {
-    console.log(history.action);
-  }, [albumList]);
 
   return (
     <IonPage>

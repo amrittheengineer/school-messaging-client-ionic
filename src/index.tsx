@@ -3,6 +3,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Main from "./Main";
 import * as serviceWorker from "./serviceWorker";
+import { isPlatform } from "@ionic/react";
+import { Plugins } from "@capacitor/core";
 
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker
@@ -13,6 +15,16 @@ if ("serviceWorker" in navigator) {
         .catch(function (err) {
             console.log("Service worker registration failed, error:", err);
         });
+}
+
+if (isPlatform("capacitor")) {
+    const { PushNotifications, LocalNotifications } = Plugins
+    PushNotifications.requestPermission().then(({ granted }) => {
+        if (granted) {
+            PushNotifications.register();
+        }
+    });
+
 }
 
 // setupConfig({

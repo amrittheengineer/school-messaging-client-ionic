@@ -8,7 +8,6 @@ import App from './App';
 import Auth from './pages/Auth';
 import { Storage } from '@capacitor/core';
 import "./pages/Tab.css";
-import { firebase } from "./modules/firebase";
 
 // const AppWrapper: React.FC = () => {
 //     return (
@@ -77,13 +76,13 @@ const Main: React.FC = () => {
 // Storage.set({ key: "userCred", value: "" })
 const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
     useEffect(() => {
-        Storage.get({ key: "userCred" }).then(({ value }) => {
-            if (!value) {
+        Storage.get({ key: "batchId" }).then(({ value }) => {
+            if (value) {
                 history.replace("/app/tab2")
             } else {
                 throw new Error("No user")
             }
-        }).catch(err => {
+        }).catch(_err => {
             history.replace("/auth")
         })
     }, [])

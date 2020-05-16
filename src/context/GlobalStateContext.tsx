@@ -7,7 +7,8 @@ import {
   Announcement,
   User,
 } from "../interface/TypeInterface";
-import { Storage } from "@capacitor/core";
+import { Storage, Plugins } from "@capacitor/core";
+import { isPlatform } from "@ionic/react";
 
 export const GlobalStateContext = createContext<GlobalStateContextInterface | null>(
   null
@@ -27,9 +28,35 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
 
   const updateUser = () => {
     Storage.get({ key: "batchId" }).then(batchId => {
-      console.log(batchId.value);
-
-      setUser({ batchId: batchId.value });
+      // console.log(batchId.value);
+      if (isPlatform("capacitor")) {
+        Plugins.PushNotifications.addListener(
+          "pushNotificationReceived",
+          async (notification) => {
+            const { type } = notification.data;
+            if (type === "Announcement") {
+              refreshAnnouncements();
+            } else if (type === "Class") {
+              refreshClassAnnouncements();
+            }
+            await Plugins.LocalNotifications.schedule({
+              notifications: [
+                {
+                  title: notification.title ? notification.title : "St Marys",
+                  body: notification.body ? notification.body : "(Empty)",
+                  id: 1,
+                  // schedule: { at: new Date(Date.now() + 1000) },
+                  // schedule: {}
+                },
+              ],
+            });
+            // console.log(notifs);
+          }
+        );
+      }
+      if (batchId) {
+        setUser({ batchId: batchId.value });
+      }
     }).catch((err) => {
       console.log(err);
     })
@@ -151,40 +178,67 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
     }
   };
 
-  const resetAnnouncements = () => {
+  const refreshAnnouncements = () => {
     setAnnouncements(prev => []);
-    setHasMoreAnnouncements(true);
-    setAnnouncementsLoading(false);
+    setHasMoreAnnouncements(prev => true);
+    // setAnnouncementsLoading(prev => false);
+    // loadMoreAnnouncements();
   }
-  const resetClassAnnouncements = () => {
+  const refreshClassAnnouncements = () => {
     setClassAnnouncements(prev => []);
-    setHasMoreClassAnnouncements(true);
-    setClassAnnouncementsLoading(false);
+    setHasMoreClassAnnouncements(prev => true);
+    // loadMoreClassAnnouncements();
+    // setClassAnnouncementsLoading(prev => false);
   }
-
 
   useEffect(() => {
-    let cancel1: Canceler, cancel2: Canceler;
-    if (user && user.batchId) {
-      console.log("Changed Class announcements state");
-      let source1 = new axios.CancelToken((c) => {
-        cancel1 = c;
-      });
-      let source2 = new axios.CancelToken((c) => {
-        cancel2 = c;
-      });
-
-      loadMoreAnnouncements(source2);
-
-      loadMoreClassAnnouncements(source1);
-
-
+    let cancel: Canceler;
+    let source = new axios.CancelToken((c) => {
+      cancel = c;
+    });
+    if (hasMoreAnnouncements && announcements.length === 0) {
+      loadMoreAnnouncements(source);
     }
     return () => {
-      if (cancel1) cancel1();
-      if (cancel2) cancel2();
-    };
-  }, [user]);
+      if (cancel) cancel();
+    }
+  }, [hasMoreAnnouncements, announcements])
+  useEffect(() => {
+    let cancel: Canceler;
+    let source = new axios.CancelToken((c) => {
+      cancel = c;
+    });
+    if (user && user.batchId && hasMoreClassAnnouncements && classAnnouncements.length === 0) {
+      loadMoreClassAnnouncements(source);
+    }
+    return () => {
+      if (cancel) cancel();
+    }
+  }, [hasMoreClassAnnouncements, classAnnouncements, user])
+
+
+  // useEffect(() => {
+  //   let cancel1: Canceler, cancel2: Canceler;
+  //   if (user && user.batchId) {
+  //     console.log("Changed Class announcements state");
+  //     let source1 = new axios.CancelToken((c) => {
+  //       cancel1 = c;
+  //     });
+  //     let source2 = new axios.CancelToken((c) => {
+  //       cancel2 = c;
+  //     });
+
+  //     loadMoreAnnouncements(source2);
+
+  //     loadMoreClassAnnouncements(source1);
+
+
+  //   }
+  //   return () => {
+  //     if (cancel1) cancel1();
+  //     if (cancel2) cancel2();
+  //   };
+  // }, [user]);
   // useEffect(() => {
   //   firebase.auth().onAuthStateChanged(fuser => {
   //     if (fuser) {
@@ -216,8 +270,8 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         announcementsLoading,
         hasMoreAnnouncements,
         loadMoreAnnouncements,
-        resetAnnouncements,
-        resetClassAnnouncements,
+        refreshAnnouncements,
+        refreshClassAnnouncements,
         hasMoreClassAnnouncements,
         loadMoreClassAnnouncements,
         classAnnouncementsLoading

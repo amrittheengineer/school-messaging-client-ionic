@@ -15,14 +15,13 @@ import linkIcon from '../images/link.svg';
 const { timeSince, getStorageURL } = Constant;
 
 const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) => {
-  const { announcements, setCurrentPost, hasMoreAnnouncements, loadMoreAnnouncements, announcementsLoading, resetAnnouncements } = useContext(GlobalStateContext)!;
+  const { announcements, setCurrentPost, hasMoreAnnouncements, loadMoreAnnouncements, announcementsLoading, refreshAnnouncements } = useContext(GlobalStateContext)!;
   const [loading, setLoading] = useState<boolean>(false);
   return (
     <IonPage>
       <IonContent>
         <IonRefresher slot="fixed" onIonRefresh={(event) => {
-          resetAnnouncements();
-          loadMoreAnnouncements();
+          refreshAnnouncements();
           // alert(Object.keys(event.detail))
           event.detail.complete();
         }}
@@ -162,10 +161,7 @@ const URLCard: React.FC<{
           return res.json();
         })
         .then((res) => {
-          console.log({
-            title: res.title,
-            thumbnail: res.thumbnail_url,
-          });
+          console.log(res);
 
           setLink(res.title);
           setThumbnail(res.thumbnail_url);

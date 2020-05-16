@@ -168,9 +168,6 @@ export const SignUpContextWebProvider = (props: { children: any }) => {
             }
         })
     }
-    const resetAuth = () => {
-        confirmationResult.current = null;
-    }
     return (
         <SignUpContextWeb.Provider value={{ setSignInCallBack, sendOtpWeb, verifyOtpWeb, updateUserData }}>
             {props.children}

@@ -361,7 +361,6 @@ const AuthCoreWeb: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
 
                                                         }
                                                     </div>
-
                                                 </IonGrid>
                                             </IonCard>
                                         </div>
@@ -403,28 +402,76 @@ const AuthRecaptchaComponent: React.FC<{ callback: (res: any) => void; }> = ({ c
     )
 }
 const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
-    const { sendOtpCapacitor, verifyOtpCapacitor } = useContext(SignUpContext)!;
+    const { sendOtpCapacitor, verifyOtpCapacitor, setDataRef } = useContext(SignUpContext)!;
     const [timer, setTimer] = useState<number>(0);
-    const [progressScreen, setProgressScreen] = useReducer((prevstate: State, action: Action) => {
-        if (action.type === "get_started_clicked") {
-            return { screenNumber: 1, screenType: "get_started_clicked", message: "Sending OTP" };
-        } else if (action.type === "otp_sent") {
-            setTimer(30);
-            return { screenNumber: prevstate.screenNumber, screenType: "otp_sent", };
-        } else if (action.type === "otp_resent") {
-            return { screenNumber: prevstate.screenNumber, screenType: prevstate.screenType, message: "Sending OTP" };
-        } else if (action.type === "on_verification") {
-            return { screenNumber: prevstate.screenNumber, screenType: prevstate.screenType, message: "Verifying OTP" };
-        }
-        else {
-            return prevstate;
-        }
-    }, { screenNumber: 0 });
+
+    const [screen, setScreen] = useState<number>(1);
+
     const [loadingVisibility, setLoadingVisibility] = useState<boolean>(false);
+    const [progressMessage, setProgressMessage] = useState<string>("");
     const timerInterval = useRef<NodeJS.Timeout | null>(null);
     const phone_string = useRef<string>("");
     const otp_string = useRef<string>("");
     const class_id_string = useRef<string>("");
+    const student_name_string = useRef<string>("");
+    const user_exists_ref = useRef<boolean>(false);
+    const [toastMessage, showToast] = useState<string>("");
+    useEffect(() => {
+        if (toastMessage) {
+            setTimeout(() => {
+                showToast("");
+            }, 3000);
+        }
+    }, [toastMessage])
+    const otpSendDidClickAction = () => {
+        // console.log(verifyCaptcha);
+        // console.log(window.recaptchaVerifier);
+        if (phone_string.current.length !== 10) {
+            showToast("Please enter a valid phone number.")
+            return;
+        } else if (!class_id_string.current) {
+            showToast("Please enter the Class ID.")
+            return;
+
+        }
+        setProgressMessage("Checking for Class and User.")
+        const { requestPromise } = request(`/api/student/verify-section/${class_id_string.current.trim()}?phone=${phone_string.current}`, { method: "GET" });
+        requestPromise.then(({ data }) => {
+            const { classExists, userExists } = data;
+            setProgressMessage("")
+            if (!classExists) {
+                showToast("No class exists.");
+                // Toast.show({ text: "No class exists.", duration: "long" });
+            } else {
+                if (!userExists) {
+                    setScreen(3);
+                } else {
+                    user_exists_ref.current = userExists;
+                    setProgressMessage("Sending OTP")
+                    sendOtpCapacitor(phone_string.current || "").then(() => {
+                        showToast("OTP Sent");
+                        setTimer(30);
+                        setScreen(4);
+                    }).catch(err => {
+                        // Error in sending OTP
+                        showToast("Error in sending OTP.")
+                        // alert(err);
+                    }).finally(() => {
+                        setProgressMessage("");
+                    })
+                }
+                // setInputDisabled(true);
+            }
+            // alert(data);
+        }).catch(err => {
+            setProgressMessage("");
+            showToast("Something went wrong");
+            console.error(err);
+            // showToast("Try again later.")
+
+            // Toast.show({ text: "Try again later", duration: "long" });
+        })
+    }
     useEffect(() => {
         if (timer === 0 && timerInterval.current !== null) {
             clearInterval(timerInterval.current!);
@@ -439,16 +486,29 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
     }, [timer])
     const setCallBack = useContext(SignUpContext)?.setSignInCallBack
     useEffect(() => {
-        if (onSignIn && setCallBack) setCallBack(onSignIn);
+        if (setCallBack && onSignIn) setCallBack(onSignIn);
     }, [])
     return (
         <IonPage>
-            <IonLoading isOpen={loadingVisibility} message={progressScreen.message} />
+            <IonLoading isOpen={progressMessage !== ""} message={progressMessage} />
             <IonContent>
+                <IonToast
+                    isOpen={toastMessage !== ""}
+                    message={toastMessage}
+                    duration={1000}
+                    color="primary"
+                />
                 <div className="page-container">
                     {
+                        screen > 1 ? <div className="login-header">
+                            <div className="screen-name">
+                                <div className="title">Enter the details</div>
+                            </div>
+                        </div> : <div></div>
+                    }
+                    {
                         (function () {
-                            if (progressScreen.screenNumber === 0) {
+                            if (screen === 1) {
                                 return (
                                     <>
                                         <div className="intro-avatar-container">
@@ -459,134 +519,290 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
                                         <div className="get-started-container">
                                             <div className="get-started-message">Log in to get started.</div>
                                             <IonButton className="get-started-btn" onClick={() => {
-                                                setProgressScreen({ type: "get_started_clicked" })
+                                                setScreen(2);
                                             }}>Get Started</IonButton>
                                         </div>
                                     </>
                                 )
-                            } else if (progressScreen.screenNumber === 1) {
+                            } else if (screen === 2) {
                                 return (
                                     <>
-                                        <div className="login-header">
-                                            <div className="screen-name">
-                                                <div className="title">Enter the details</div>
-                                            </div>
-                                        </div>
                                         <div className="login-body">
                                             <IonCard className="sign-in-card">
                                                 {/* <IonIcon icon={classRoom} className="user-avatar" /> */}
                                                 <IonGrid className="form-container-grid">
-                                                    {
-                                                        progressScreen.screenType === "otp_sent"
-                                                            ?
-                                                            <IonRow className="form-input">
-                                                                <IonCol>
-                                                                    <IonItem>
-                                                                        <IonLabel position="floating">Enter OTP</IonLabel>
+                                                    <>
+                                                        <IonRow className="form-input">
+                                                            <IonCol>
+                                                                <IonItem>
+                                                                    <IonLabel position="floating">Phone Number</IonLabel>
+                                                                    <IonInput onInput={e => {
+                                                                        phone_string.current = e.currentTarget.value?.toString().trim() || "";
+                                                                        // alert(phone_string.current)
 
-                                                                        <IonInput onInput={e => {
-                                                                            otp_string.current = e.currentTarget.value?.toString().trim() || "";
-                                                                        }} type="tel" maxlength={6} minlength={6}></IonInput>
-                                                                    </IonItem>
-                                                                </IonCol>
-                                                            </IonRow>
-                                                            :
-                                                            <>
-                                                                <IonRow className="form-input">
-                                                                    <IonCol>
-                                                                        <IonItem>
-                                                                            <IonLabel position="floating">Phone Number</IonLabel>
-                                                                            <IonInput onInput={e => {
-                                                                                phone_string.current = e.currentTarget.value?.toString().trim() || "";
-                                                                                // alert(phone_string.current)
-
-                                                                            }} type="tel" maxlength={10} minlength={10}></IonInput>
-                                                                        </IonItem>
-                                                                    </IonCol>
-                                                                </IonRow>
-                                                                <IonRow className="form-input">
-                                                                    <IonCol>
-                                                                        <IonItem>
-                                                                            <IonLabel position="floating">Class Id</IonLabel>
-                                                                            <IonInput onInput={e => {
-                                                                                class_id_string.current = e.currentTarget.value?.toString().trim() || "";
-                                                                            }} type="text" ></IonInput>
-                                                                        </IonItem>
-                                                                    </IonCol>
-                                                                </IonRow>
-                                                            </>
-                                                    }
-                                                    <div className="btn-actions">
-                                                        {
-                                                            (function () {
-                                                                if (progressScreen.screenType === "get_started_clicked") {
-                                                                    return (<IonButton className="action-btn" onClick={() => {
-                                                                        setLoadingVisibility(true);
-                                                                        sendOtpCapacitor(phone_string.current || "").then(() => {
-                                                                            setProgressScreen({ type: "otp_sent" })
-                                                                        }).catch(err => {
-                                                                            // Error in sending OTP
-                                                                            alert(err);
-                                                                        }).finally(() => {
-                                                                            setLoadingVisibility(false);
-
-                                                                        })
-                                                                    }}>
-                                                                        Send OTP
-                                                                    </IonButton>)
-                                                                } else if (progressScreen.screenType === "otp_sent")
-
-                                                                    return (
-                                                                        <>
-                                                                            <IonButton disabled={timer > 0} fill="outline" className="action-btn" onClick={() => {
-                                                                                setLoadingVisibility(true);
-                                                                                sendOtpCapacitor(phone_string.current || "").then(() => {
-                                                                                    setTimer(30);
-                                                                                }).catch(err => {
-                                                                                    // Error in sending OTP
-                                                                                    alert(err);
-                                                                                }).finally(() => {
-                                                                                    setLoadingVisibility(false);
-
-                                                                                })
-                                                                            }}>
-                                                                                {timer === 0 ? `Send OTP Again` : `${timer} seconds`}
-                                                                            </IonButton>
-                                                                            <IonButton className="action-btn" onClick={() => {
-                                                                                setLoadingVisibility(true);
-                                                                                verifyOtpCapacitor(otp_string.current || "").then(() => {
-
-                                                                                }).catch(err => {
-                                                                                    // Error in sending OTP
-                                                                                    alert(err);
-                                                                                }).finally(() => {
-                                                                                    setLoadingVisibility(false);
-
-                                                                                })
-                                                                            }}>
-                                                                                Verify OTP
-                                                                        </IonButton>
-                                                                        </>
-                                                                    )
-                                                                else {
-                                                                    return <div></div>
-                                                                }
-                                                            })()
-                                                        }
-                                                    </div>
+                                                                    }} type="tel" maxlength={10} minlength={10}></IonInput>
+                                                                </IonItem>
+                                                            </IonCol>
+                                                        </IonRow>
+                                                        <IonRow className="form-input">
+                                                            <IonCol>
+                                                                <IonItem>
+                                                                    <IonLabel position="floating">Class Id</IonLabel>
+                                                                    <IonInput onInput={e => {
+                                                                        class_id_string.current = e.currentTarget.value?.toString().trim() || "";
+                                                                    }} type="text" ></IonInput>
+                                                                </IonItem>
+                                                            </IonCol>
+                                                        </IonRow>
+                                                        <div className="btn-actions">
+                                                            <IonButton className="action-btn" onClick={() => {
+                                                                otpSendDidClickAction();
+                                                            }}>
+                                                                Send OTP
+                                                        </IonButton>
+                                                        </div>
+                                                    </>
                                                 </IonGrid>
                                             </IonCard>
                                         </div>
                                     </>
                                 )
+                            } else if (screen === 3) {
+                                return (
+
+                                    <div className="login-body">
+                                        <IonCard className="sign-in-card">
+                                            <IonGrid className="form-container-grid">
+                                                <>
+                                                    <IonRow className="form-input">
+                                                        <IonCol>
+                                                            <IonItem>
+                                                                <IonLabel position="floating">Student Name</IonLabel>
+                                                                <IonInput onInput={e => {
+                                                                    student_name_string.current = e.currentTarget.value?.toString().trim() || "";
+                                                                }} type="text" ></IonInput>
+                                                            </IonItem>
+                                                        </IonCol>
+                                                    </IonRow>
+                                                    <div className="btn-actions">
+                                                        <IonButton disabled={timer > 0} fill="outline" className="action-btn" onClick={() => {
+                                                            if (!student_name_string.current.trim().length) {
+                                                                showToast("Please enter the student name.");
+                                                                return;
+                                                            }
+                                                            setLoadingVisibility(true);
+                                                            sendOtpCapacitor(phone_string.current || "").then(() => {
+                                                                setScreen(4);
+                                                                setTimer(30);
+                                                            }).catch(err => {
+                                                                // Error in sending OTP
+                                                                showToast("Error in sending OTP")
+                                                            }).finally(() => {
+                                                                setLoadingVisibility(false);
+
+                                                            })
+                                                        }}>
+                                                            Confirm
+                                                        </IonButton>
+                                                    </div>
+                                                </>
+                                            </IonGrid>
+                                        </IonCard>
+                                    </div>
+
+                                )
+                            } else if (screen === 4) {
+                                return (
+                                    <div className="login-body">
+                                        <IonCard className="sign-in-card">
+                                            {/* <IonIcon icon={classRoom} className="user-avatar" /> */}
+                                            <IonGrid className="form-container-grid">
+                                                <>
+                                                    <IonRow className="form-input">
+                                                        <IonCol>
+                                                            <IonItem>
+                                                                <IonLabel position="floating">Enter OTP</IonLabel>
+
+                                                                <IonInput onInput={e => {
+                                                                    otp_string.current = e.currentTarget.value?.toString().trim() || "";
+                                                                }} type="tel" maxlength={6} minlength={6}></IonInput>
+                                                            </IonItem>
+                                                        </IonCol>
+                                                    </IonRow>
+                                                    <div className="btn-actions">
+                                                        <IonButton disabled={timer > 0} fill="outline" className="action-btn" onClick={() => {
+                                                            setProgressMessage("Sending OTP again.");
+                                                            sendOtpCapacitor(phone_string.current || "").then(() => {
+                                                                setTimer(30);
+                                                            }).catch(err => {
+                                                                // Error in sending OTP
+                                                                // alert(err);
+                                                                showToast("Error in sending OTP")
+                                                            }).finally(() => {
+                                                                setProgressMessage("");
+
+                                                            })
+                                                        }}>
+                                                            {timer === 0 ? `Send OTP Again` : `${timer} seconds`}
+                                                        </IonButton>
+                                                        <IonButton className="action-btn" onClick={() => {
+                                                            if (!otp_string.current.trim().length) {
+                                                                showToast("Enter the OTP");
+                                                                return;
+                                                            }
+                                                            setDataRef({
+                                                                user_exists: user_exists_ref.current,
+                                                                name: student_name_string.current.trim(),
+                                                                batchId: class_id_string.current.trim().toLowerCase(),
+                                                                phone: phone_string.current.trim()
+                                                            });
+                                                            // alert(JSON.stringify(otp_string.current))
+                                                            setProgressMessage("Verifying OTP")
+                                                            verifyOtpCapacitor(otp_string.current || "").then(() => {
+                                                                showToast("Logging in...")
+                                                            }).catch(err => {
+                                                                // Error in sending OTP
+                                                                showToast(err)
+                                                                // alert(err);
+                                                            }).finally(() => {
+                                                                setProgressMessage("");
+                                                            })
+                                                        }}>
+                                                            Verify OTP
+                                                        </IonButton>
+
+                                                    </div>
+
+                                                </>
+                                            </IonGrid>
+                                        </IonCard>
+                                    </div>
+                                )
+                            } else {
+                                return <div></div>
                             }
+
+
                         })()
                     }
-
                 </div>
             </IonContent>
         </IonPage>
     )
 }
 
-export default Auth; 
+export default Auth;
+
+// {
+//     <div className="btn-actions">
+//     {
+//         (function () {
+//             if (progressScreen.screenType === "get_started_clicked") {
+//                 return (<IonButton className="action-btn" onClick={() => {
+//                     otpSendDidClickAction();
+//                 }}>
+//                     Send OTP
+//                 </IonButton>)
+//             } else if (progressScreen.screenType === "otp_sent")
+
+//                 return (
+//                     <>
+//                         <IonButton disabled={timer > 0} fill="outline" className="action-btn" onClick={() => {
+//                             setLoadingVisibility(true);
+//                             sendOtpCapacitor(phone_string.current || "").then(() => {
+//                                 setTimer(30);
+//                             }).catch(err => {
+//                                 // Error in sending OTP
+//                                 alert(err);
+//                             }).finally(() => {
+//                                 setLoadingVisibility(false);
+
+//                             })
+//                         }}>
+//                             {timer === 0 ? `Send OTP Again` : `${timer} seconds`}
+//                         </IonButton>
+//                         <IonButton className="action-btn" onClick={() => {
+//                             setLoadingVisibility(true);
+//                             verifyOtpCapacitor(otp_string.current || "").then(() => {
+//                                 updateUserData({
+//                                     user_exists: userExists,
+//                                     name: student_name_string.current.trim(),
+//                                     batchId: class_id_string.current.trim().toLowerCase(),
+//                                     phone: phone_string.current.trim()
+//                                 })
+
+//                             }).catch(err => {
+//                                 // Error in sending OTP
+//                                 alert(err);
+//                             }).finally(() => {
+//                                 setLoadingVisibility(false);
+
+//                             })
+//                         }}>
+//                             Verify OTP
+//                     </IonButton>
+//                     </>
+//                 )
+//             else {
+//                 return <div></div>
+//             }
+//         })()
+//     }
+// </div>
+                                                    //     progressScreen.screenType === "otp_sent"
+                                                    //         ?
+                                                    //         <IonRow className="form-input">
+                                                    //             <IonCol>
+                                                    //                 <IonItem>
+                                                    //                     <IonLabel position="floating">Enter OTP</IonLabel>
+
+                                                    //                     <IonInput onInput={e => {
+                                                    //                         otp_string.current = e.currentTarget.value?.toString().trim() || "";
+                                                    //                     }} type="tel" maxlength={6} minlength={6}></IonInput>
+                                                    //                 </IonItem>
+                                                    //             </IonCol>
+                                                    //         </IonRow>
+                                                    //         :
+                                                    //         <>
+                                                    //             {
+                                                    //                 !userExists ?
+                                                    //                     <>
+                                                    //                         <IonRow className="form-input">
+                                                    //                             <IonCol>
+                                                    //                                 <IonItem>
+                                                    //                                     <IonLabel position="floating">Phone Number</IonLabel>
+                                                    //                                     <IonInput onInput={e => {
+                                                    //                                         phone_string.current = e.currentTarget.value?.toString().trim() || "";
+                                                    //                                         // alert(phone_string.current)
+
+                                                    //                                     }} type="tel" maxlength={10} minlength={10}></IonInput>
+                                                    //                                 </IonItem>
+                                                    //                             </IonCol>
+                                                    //                         </IonRow>
+                                                    //                         <IonRow className="form-input">
+                                                    //                             <IonCol>
+                                                    //                                 <IonItem>
+                                                    //                                     <IonLabel position="floating">Class Id</IonLabel>
+                                                    //                                     <IonInput onInput={e => {
+                                                    //                                         class_id_string.current = e.currentTarget.value?.toString().trim() || "";
+                                                    //                                     }} type="text" ></IonInput>
+                                                    //                                 </IonItem>
+                                                    //                             </IonCol>
+                                                    //                         </IonRow>
+                                                    //                     </>
+                                                    //                     :
+                                                    //                     <>
+                                                    //                         <IonRow className="form-input">
+                                                    //                             <IonCol>
+                                                    //                                 <IonItem>
+                                                    //                                     <IonLabel position="floating">Student Name</IonLabel>
+                                                    //                                     <IonInput onInput={e => {
+                                                    //                                         student_name_string.current = e.currentTarget.value?.toString().trim() || "";
+                                                    //                                     }} type="text" ></IonInput>
+                                                    //                                 </IonItem>
+                                                    //                             </IonCol>
+                                                    //                         </IonRow>
+                                                    //                     </>
+                                                    //             }
+                                                    //         </>
+                                                    // }
