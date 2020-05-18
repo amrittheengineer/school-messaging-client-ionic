@@ -6,8 +6,12 @@ import { GlobalStateContextProvider } from './context/GlobalStateContext'
 import { GalleryContextProvider } from './context/GalleryContext'
 import App from './App';
 import Auth from './pages/Auth';
-import { Storage } from '@capacitor/core';
+import { Storage, Plugins } from '@capacitor/core';
 import "./pages/Tab.css";
+import VideoPlayer from './pages/VideoPlayer';
+import Gallery from './pages/Gallery';
+import PostGallery from './pages/PostGallery';
+import Album from './pages/Album';
 
 // const AppWrapper: React.FC = () => {
 //     return (
@@ -21,27 +25,27 @@ import "./pages/Tab.css";
 
 
 const Main: React.FC = () => {
-    // useEffect(() => {
-    //     Storage.get({ key: "userCred" }).then(({ value }) => {
-    //         if (value) {
-    //             return (
-    //                 <Route
-    //                     path="/"
-    //                     render={() => <Redirect to="/app" />}
-    //                     exact={true}
-    //                 />
-    //             )
-    //         } else {
-    //             throw new Error("No user")
-    //         }
-    //     }).catch(err => {
-    //         return <Route
-    //             path="/"
-    //             render={() => <Redirect to="/auth" />}
-    //             exact={true}
-    //         />
-    //     })
-    // }, [])
+    useEffect(() => {
+        Storage.get({ key: "userCred" }).then(({ value }) => {
+            if (value) {
+                return (
+                    <Route
+                        path="/"
+                        render={() => <Redirect to="/app" />}
+                        exact={true}
+                    />
+                )
+            } else {
+                throw new Error("No user")
+            }
+        }).catch(err => {
+            return <Route
+                path="/"
+                render={() => <Redirect to="/auth" />}
+                exact={true}
+            />
+        })
+    }, [])
     return (
         <GlobalStateContextProvider>
             <GalleryContextProvider>
@@ -51,6 +55,23 @@ const Main: React.FC = () => {
                         <Route path="/spinner" component={Spinner} exact={true} />
                         <Route path="/" render={() => <Redirect to="/spinner" />} />
                         <Route path="/app/:tab" component={App} />
+                        {/* <Route path="/album/:id" component={Album} exact={true} />
+                        <Route
+                            path="/video-player"
+                            component={VideoPlayer}
+                            exact={true}
+                        />
+                        <Route
+                            path="/image-gallery/:index"
+                            component={Gallery}
+                            exact={true}
+                        />
+                        <Route
+                            path="/post-images-gallery/:index"
+                            component={PostGallery}
+                            exact={true}
+                        /> */}
+
                         {/* <Route path="/album/:id" component={Album} />
                         <Route
                             path="/video-player"
@@ -77,6 +98,7 @@ const Main: React.FC = () => {
 const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
     useEffect(() => {
         Storage.get({ key: "batchId" }).then(({ value }) => {
+            // alert(value)
             if (value) {
                 history.replace("/app/tab2")
             } else {
@@ -84,7 +106,10 @@ const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
             }
         }).catch(_err => {
             history.replace("/auth")
-        })
+        });
+        if (isPlatform("capacitor")) {
+            Plugins.SplashScreen.hide();
+        }
     }, [])
 
     // useIonViewWillEnter(() => {

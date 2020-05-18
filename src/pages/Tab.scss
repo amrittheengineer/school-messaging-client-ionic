@@ -330,7 +330,8 @@ $color: #e74c3c;
   }
 }
 .gallery-image {
-  min-height: 10vh;
+  // min-height: 10vh;
+  width: 100vw;
 }
 // .gallery-image-container {
 //   display: flex;

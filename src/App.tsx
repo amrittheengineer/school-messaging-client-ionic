@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import { Redirect, Route } from "react-router-dom";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, useHistory } from "react-router";
 import {
   IonLoading,
   IonIcon,
@@ -14,7 +14,8 @@ import {
   IonSlide,
   IonSlides,
   IonImg,
-  IonApp
+  IonApp,
+  isPlatform
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { home, image, chatbubbleEllipses, downloadOutline } from "ionicons/icons";
@@ -51,46 +52,49 @@ import Album from './pages/Album';
 import Gallery from './pages/Gallery';
 import PostGallery from './pages/PostGallery';
 import VideoPlayer from './pages/VideoPlayer';
-
-import Auth from "./pages/Auth";
+import { AppMinimize } from '@ionic-native/app-minimize';
 
 const Application = Plugins.App;
-const { LocalNotifications } = Plugins;
 
-const App: React.FC = () => {
+const App: React.FC<RouteComponentProps> = () => {
+  // const history = useHistory();
+  const { replace, action } = useHistory();
   useEffect(() => {
-    Application.addListener("backButton", (event) => {
-      Application.exitApp();
+    Application.addListener("backButton", () => {
+      if (isPlatform("android")) {
+        AppMinimize.minimize();
+      }
     });
-
+    // Application.requestPermissions ? Application.requestPermissions().then()
+    // console.log(action)
     return () => {
       Application.removeAllListeners();
     };
   }, []);
 
-  const [currentTab, setCurrentTab] = useState<string>("");
-
 
   return (
-    <IonPage>
+    <IonPage id="app">
       <IonContent>
         <IonReactRouter>
           <IonTabs
-            onIonTabsDidChange={(event) => {
-              setCurrentTab(event.detail.tab);
-            }}
           >
             <IonRouterOutlet>
-              <Route path="/app/tab1" component={Tab1} />
-              <Route path="/app/tab2" component={Tab2} />
-              <Route path="/app/gallery" component={Tab3} />
+              <Route path="/app/tab1" component={Tab1} exact={true} />
+              <Route path="/app/tab2" component={Tab2} exact={true} />
+              <Route path="/app/gallery" component={Tab3} exact={true} />
 
-              <Route
+              {/* <Route
                 path="/app"
                 render={() => <Redirect to="/app/tab2" />}
                 exact={true}
-              />
-              <Route path="/app/album/:id" component={Album} />
+              /> */}
+              {/* <Route
+                path="/"
+                render={() => <Redirect to="/app/tab2" />}
+                exact={true}
+              /> */}
+              <Route path="/app/album/:id" component={Album} exact={true} />
               <Route
                 path="/app/video-player"
                 component={VideoPlayer}
@@ -106,13 +110,15 @@ const App: React.FC = () => {
                 component={PostGallery}
                 exact={true}
               />
-
-
             </IonRouterOutlet>
             <IonTabBar slot="bottom">
               <IonTabButton
                 // disabled={currentTab === "tab1"}
                 tab="tab1"
+
+                // onClick={(e) => {
+                //   replace("/app/tab1")
+                // }}
                 href="/app/tab1"
               >
                 <IonIcon icon={home} />
@@ -121,6 +127,9 @@ const App: React.FC = () => {
               <IonTabButton
                 // disabled={currentTab === "tab2"}
                 tab="tab2"
+                // onClick={(e) => {
+                //   replace("/app/tab2")
+                // }}
                 href="/app/tab2"
               >
                 <IonIcon icon={chatbubbleEllipses} />
@@ -129,6 +138,9 @@ const App: React.FC = () => {
               <IonTabButton
                 // disabled={currentTab === "gallery"}
                 tab="gallery"
+                // onClick={(e) => {
+                //   replace("/app/gallery")
+                // }}
                 href="/app/gallery"
               >
                 <IonIcon icon={image} />

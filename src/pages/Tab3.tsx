@@ -6,6 +6,7 @@ import {
   IonCard,
   IonImg,
   IonThumbnail,
+  isPlatform,
 } from "@ionic/react";
 import "./Tab.css";
 import { image, filter, search } from "ionicons/icons";
@@ -14,9 +15,23 @@ import { animated, useSpring } from "react-spring";
 import { GalleryContext } from "../context/GalleryContext";
 import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
+import { AppMinimize } from '@ionic-native/app-minimize';
+import { Plugins } from "@capacitor/core";
 const { getStorageURL } = Constant;
 
 const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
+  useEffect(() => {
+    Plugins.App.addListener("backButton", () => {
+      if (isPlatform("android")) {
+        AppMinimize.minimize();
+      }
+    });
+    // Application.requestPermissions ? Application.requestPermissions().then()
+    // console.log(action)
+    return () => {
+      Plugins.App.removeAllListeners();
+    };
+  }, []);
   const albumList = useContext(GalleryContext)!.albumList;
 
   return (
@@ -57,16 +72,10 @@ const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
 const AlbumCard: React.FC<{
   album: Album;
   delay: number;
-}> = ({ album, delay }) => {
-
-  const props = useSpring({
-    from: { transform: "scale(0.95)", opacity: 0 },
-    to: { transform: "scale(1)", opacity: 1 },
-    delay: delay * 200,
-  });
+}> = ({ album }) => {
   return (
 
-    <animated.div style={props} className="album-card-wrapper">
+    <div className="album-card-wrapper">
       <IonCard routerLink={"/app/album/" + album.id} routerDirection="forward" >
         {/* <img
         className="album-thumbnail"
@@ -88,7 +97,7 @@ const AlbumCard: React.FC<{
           </div>
         </div>
       </IonCard>
-    </animated.div>
+    </div>
   );
 };
 

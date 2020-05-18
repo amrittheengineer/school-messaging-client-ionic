@@ -9,44 +9,38 @@ import {
   IonRouterOutlet,
   IonSlide,
   IonSlides,
-  IonSpinner,
+  IonButtons,
   IonButton,
   IonIcon,
   IonImg,
   IonLoading,
-  IonVirtualScroll,
+  IonHeader,
+  useIonViewDidEnter,
+  IonBackButton,
+  isPlatform
 } from "@ionic/react";
 
 // import { useFilesystem, base64FromPath } from '@ionic/react-hooks/filesystem';
 // import { NativePageTransitions } from "@ionic-native/native-page-transitions";
-import { RouteComponentProps, Route, Redirect } from "react-router";
+import { RouteComponentProps, Prompt, useHistory, withRouter, WithRouterProps } from "react-router";
 import { GalleryContext } from "../context/GalleryContext";
 import { Plugins } from "@capacitor/core";
 import { Video } from "../interface/TypeInterface";
 import FlatList from "flatlist-react";
-import { playCircle } from "ionicons/icons";
-import { useSpring, animated } from "react-spring";
-import { GlobalStateContext } from "../context/GlobalStateContext";
-import { Capacitor } from '@capacitor/core'
+import { playCircle, arrowBack } from "ionicons/icons";
 import { EmptyComponent, Loading } from "../components/EmptyComponent";
-
+import { AppMinimize } from '@ionic-native/app-minimize';
 const Application = Plugins.App;
 const { LocalNotifications } = Plugins;
-
-const { convertFileSrc } = Capacitor;
 // const { writeFile } = useFilesystem();
 
-const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
-  match,
-  history,
-}) => {
+const Album: React.FC<RouteComponentProps<{ id: string }>> = (({ match }) => {
   const context = useContext(GalleryContext);
 
   const [selected, setSelected] = useState<string>("photos");
   const [downloading, setDownloading] = useState<string>("");
-
   useEffect(() => {
-    Application.removeAllListeners();
+
 
     context?.setCurrentAlbum((previousAlbum) => {
       if (previousAlbum === match.params.id) {
@@ -57,27 +51,65 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
       }
     });
 
-    // setTimeout(() => {
-    //   setsel("videos");
-    // }, 5000);
-
-    // console.log(match.params.id);
+    Application.removeAllListeners();
 
     return () => {
       Application.addListener("backButton", () => {
-        Application.exitApp();
+        if (isPlatform("android")) {
+          AppMinimize.minimize();
+        }
       });
-    };
-  }, []);
+    }
 
-  const slideOpts = {
-    speed: 400,
-    initialSlide: 0,
-  };
+  }, []);
+  const history = useHistory();
+
+
+  // const unBlock = useRef<any>(null);
+
+  // useEffect(() => {
+  // history.listen((newLocation, action) => {
+  //   if (action === "POP") {
+  //     // console.log(action);
+
+  //     if (imageIndex !== -1) {
+  //       //   // Clone location object and push it to history
+  //       //   history.goBack();
+  //       console.log("Going to push");
+
+  //       // history.block(true)
+  //       history.push({
+  //         pathname: history.location.pathname,
+  //         search: history.location.search
+  //       });
+  //     }
+  //     // else {
+  //     //   // If a "POP" action event occurs, 
+  //     //   // Send user back to the originating location
+
+  //     //   history.push({
+  //     //     pathname: newLocation.pathname,
+  //     //     search: newLocation.search
+  //     //   });
+
+  //     //   // history.go(1);
+  //     // }
+  //   }
+  // });
+  // }
+
+  //   , [imageIndex]);
+
+
 
   return (
-    <IonPage>
-      <IonToolbar>
+    <IonPage id="album">
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonBackButton icon={arrowBack} />
+          </IonButtons>
+        </IonToolbar>
         <IonSegment
           onIonChange={(e) => {
             // history.createHref("/view/videos")
@@ -97,9 +129,23 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
             {/* </IonRouterLink> */}
           </IonSegmentButton>
         </IonSegment>
-      </IonToolbar>
+
+      </IonHeader>
+
       <IonContent>
+
         <IonLoading isOpen={downloading !== ""} message={downloading} />
+
+        {/* <ModalGateway>
+          {imageIndex !== -1 ? (
+            <Modal onClose={() => setImageIndex(-1)}>
+              <Carousel currentIndex={imageIndex} views={context ? context.albumPhotos.map(({ url }) => ({ source: { regular: url, download: url } })) : []} />
+            </Modal>
+          ) : null}
+        </ModalGateway> */}
+
+        {/* <Prompt when={imageIndex !== -1} /> */}
+
         {/* <IonReactRouter>
         <Route path="/view/photos" component={Photos} exact={true} />
         <Route path="/view/videos" component={Videos} exact={true} />
@@ -122,9 +168,10 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
           // })
           <FlatList
             list={context ? context.albumPhotos : []}
-            renderItem={(image, ind) => {
+            renderItem={(image: { url: string }, ind: number) => {
               return (
                 <div key={`${ind}`} onClick={() => {
+                  // setImageIndex(ind);
                   history.push("/app/image-gallery/" + ind);
                 }} className="image-thumbnail-container">
                   <IonImg src={image.url} className="image-thumbnail" />
@@ -144,7 +191,7 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
         ) : (
             <FlatList
               list={context ? context.albumVideos : []}
-              renderItem={(video, ind) => {
+              renderItem={(video: Video, ind: number) => {
                 return (
                   <VideoCard
                     video={video}
@@ -205,7 +252,7 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = ({
       </IonContent>
     </IonPage>
   );
-};
+});
 
 
 const VideoCard: React.FC<{
@@ -215,13 +262,8 @@ const VideoCard: React.FC<{
   downloadVideo: () => void;
 }> = ({ video, delay, onClick, downloadVideo }) => {
   const downloadElement = useRef<HTMLAnchorElement | null>(null);
-  const props = useSpring({
-    from: { transform: "scale(0.95)", opacity: 0 },
-    to: { transform: "scale(1)", opacity: 1 },
-    delay: delay * 200,
-  });
   return (
-    <animated.div style={props} className="video-card">
+    <div className="video-card">
       <IonIcon className="play-icon" icon={playCircle} />
       <div className="video-meta">
         <div className="video-title">{video.name.split(".")[0]}</div>
@@ -241,10 +283,10 @@ const VideoCard: React.FC<{
           <a href={video.url} title={video.name} download={video.name} target="_self" ref={downloadElement}></a>
         </div>
       </div>
-    </animated.div>
+    </div>
   );
 };
 
 
 
-export default Album;
+export default (Album);

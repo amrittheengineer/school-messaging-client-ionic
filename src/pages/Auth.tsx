@@ -11,7 +11,7 @@ import request from '../modules/request';
 import { Toast, Plugins } from '@capacitor/core';
 const Auth: React.FC<RouteComponentProps> = ({ history }) => {
     const onSignIn = () => {
-        history.replace("/app/tab2")
+        history.replace("/app")
     }
     if (isPlatform("capacitor") || isPlatform("cordova")) {
         return (

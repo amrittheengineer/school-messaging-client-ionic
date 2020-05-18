@@ -2,12 +2,14 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { GalleryContext } from '../context/GalleryContext'
 import { GlobalStateContext } from '../context/GlobalStateContext'
 
-import { RouteComponentProps } from 'react-router';
-import { IonPage, IonContent, IonLoading, IonSlides, IonSlide, IonIcon, IonImg } from '@ionic/react'
+import { RouteComponentProps, useHistory } from 'react-router';
+import { IonPage, IonContent, IonLoading, IonSlides, IonSlide, IonIcon, IonImg, isPlatform } from '@ionic/react'
 import { Toast } from '@capacitor/core';
 import { downloadOutline } from 'ionicons/icons';
 import { Plugins } from "@capacitor/core";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { AppMinimize } from '@ionic-native/app-minimize';
+import Carousel, { Modal, ModalGateway } from 'react-images';
+
 const Application = Plugins.App;
 
 
@@ -24,51 +26,32 @@ const PostGallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match }
         // pz.enable()
 
         Application.removeAllListeners();
+
         return () => {
-            // pz.disable();
             Application.addListener("backButton", () => {
-                Application.exitApp();
+                if (isPlatform("android")) {
+                    AppMinimize.minimize();
+                }
             });
-        };
+        }
     }, []);
+
+    const { goBack } = useHistory();
+
 
 
     return (
-        <IonPage>
+        <IonPage id="post-gallery">
             <IonContent className="gallery-page">
                 <IonLoading isOpen={downloading !== ""} message={downloading} />
-                <IonSlides className="gallery-slides" options={slideOpts}>
-                    {
-                        albumPhotos.map((photo, index) => {
-                            return (
-
-                                <IonSlide key={index} className="image-slide">
-                                    <div className="gallery-image-container">
-                                        <div className="image-actions">
-
-                                            <IonIcon icon={downloadOutline} onClick={() => {
-                                                setDownloading("Downloading");
-                                                downloadFile(photo, `${Date.now()}.png`, "image/png").then(() => {
-                                                    setDownloading("");
-                                                    Toast.show({ text: "Downloaded.", duration: "short" });
-
-                                                }).catch(err => {
-                                                    Toast.show({ text: "Error in downloading.", duration: "short" });
-                                                    setDownloading("");
-                                                })
-                                            }} className="download-icon" />
-                                        </div>
-                                        <div className="gallery-image-holder">
-                                            <div className="gallery-transform">
-                                                <IonImg className="gallery-image" src={photo} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </IonSlide>
-                            )
-                        })
-                    }
-                </IonSlides>
+                <ModalGateway>
+                    <Modal closeOnBackdropClick={false} onClose={() => {
+                        // console.log("Go back called");
+                        goBack();
+                    }}>
+                        <Carousel currentIndex={parseInt(match.params.index)} views={albumPhotos.map((url) => ({ source: { regular: url, download: url, fullscreen: url, thumbnail: url } }))} />
+                    </Modal>
+                </ModalGateway>
             </IonContent>
         </IonPage>
     )

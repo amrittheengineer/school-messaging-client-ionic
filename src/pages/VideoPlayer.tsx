@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
-import { IonPage, IonContent, } from '@ionic/react'
+import { IonPage, IonContent, useIonViewWillLeave, } from '@ionic/react'
 import { Plugins } from "@capacitor/core";
 const Application = Plugins.App;
 
@@ -25,6 +25,12 @@ const VideoPlayer: React.FC<RouteComponentProps> = ({
             })
         };
     }, []);
+
+    useIonViewWillLeave(() => {
+        if (videoElement.current) {
+            videoElement.current.pause();
+        }
+    }, [])
     return (
 
         <IonPage>

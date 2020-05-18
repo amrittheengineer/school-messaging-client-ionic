@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect, SetStateAction } from "react";
-import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem, IonLoading, IonRefresher, IonRefresherContent } from "@ionic/react";
+import React, { useContext, useState, useEffect, } from "react";
+import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem, IonLoading, IonRefresher, IonRefresherContent, isPlatform } from "@ionic/react";
 import "./Tab.css";
 import { chatbubbleEllipses, search, linkOutline, linkSharp } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
@@ -11,14 +11,30 @@ import FlatList from "flatlist-react";
 import { EmptyComponent, Loading } from "../components/EmptyComponent";
 import { Toast } from "@capacitor/core";
 import linkIcon from '../images/link.svg';
+import { AppMinimize } from '@ionic-native/app-minimize';
+import { Plugins } from "@capacitor/core";
+
 
 const { timeSince, getStorageURL } = Constant;
 
 const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) => {
+
+  useEffect(() => {
+    Plugins.App.addListener("backButton", () => {
+      if (isPlatform("android")) {
+        AppMinimize.minimize();
+      }
+    });
+    // Application.requestPermissions ? Application.requestPermissions().then()
+    // console.log(action)
+    return () => {
+      Plugins.App.removeAllListeners();
+    };
+  }, []);
   const { announcements, setCurrentPost, hasMoreAnnouncements, loadMoreAnnouncements, announcementsLoading, refreshAnnouncements } = useContext(GlobalStateContext)!;
   const [loading, setLoading] = useState<boolean>(false);
   return (
-    <IonPage>
+    <IonPage >
       <IonContent>
         <IonRefresher slot="fixed" onIonRefresh={(event) => {
           refreshAnnouncements();
@@ -57,7 +73,7 @@ const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) =
             <div className="announcement-list">
               <FlatList
                 list={announcements ? announcements : []}
-                renderItem={(announcement, index) => (
+                renderItem={(announcement: Announcement, index: number) => (
                   <PostCard
                     item={announcement}
                     key={index}
@@ -101,15 +117,9 @@ const PostCard: React.FC<{
   setLoading: (load: boolean) => void;
   openVideoPlayer: (url: string) => void;
   openPostImage: (index: number) => void;
-}> = ({ item, index, setLoading, openVideoPlayer, openPostImage }) => {
-  const props = useSpring({
-    from: { transform: "scale(0.95)", opacity: 0 },
-    to: { transform: "scale(1)", opacity: 1 },
-    delay: (typeof index === "string" ? parseInt(index) : index) * 200,
-  });
-  const loadResourceURL = useContext(GlobalStateContext)!.loadResourceURL;
+}> = React.memo(({ item, index, setLoading, openVideoPlayer, openPostImage }) => {
   return (
-    <animated.div style={props} className="school-card">
+    <div className="school-card">
       <div className="card-title">{"Admin"}</div>
       <div className="card-message">{item.message}</div>
       <div className="post-image-card-list">
@@ -120,7 +130,7 @@ const PostCard: React.FC<{
                 openPostImage(index)
               }}>
                 <IonThumbnail className="post-image-thumbnail" >
-                  <IonImg src={getStorageURL("announcements/" + item.id, "thumbs/thumb@256_" + photo)} />
+                  <img src={getStorageURL("announcements/" + item.id, "thumbs/thumb@256_" + photo)} />
                 </IonThumbnail>
               </div>
             )
@@ -131,16 +141,16 @@ const PostCard: React.FC<{
         item.url?.map((url, index) => <URLCard url={url} key={index} setLoading={setLoading} openVideoPlayer={openVideoPlayer} />)
       }
       <div className="author">{`${timeSince(item.timeStamp)}`}</div>
-    </animated.div>
+    </div>
   );
-};
+});
 
 const URLCard: React.FC<{
   url: string,
   setLoading: (load: boolean) => void,
   openVideoPlayer: (url: string) => void;
 
-}> = ({ url, setLoading, openVideoPlayer }) => {
+}> = React.memo(({ url, setLoading, openVideoPlayer }) => {
   const isYoutube: boolean = (url?.indexOf("youtube.com/watch") !== -1 ||
     url?.indexOf("youtu.be/") !== -1);
 
@@ -161,7 +171,7 @@ const URLCard: React.FC<{
           return res.json();
         })
         .then((res) => {
-          console.log(res);
+          // console.log(res);
 
           setLink(res.title);
           setThumbnail(res.thumbnail_url);
@@ -178,7 +188,7 @@ const URLCard: React.FC<{
           setLoading(false);
           openVideoPlayer(resourceUrl[0].url);
         }).catch((err) => {
-          alert(err);
+          // alert(err);
           setLoading(false);
           Toast.show({
             text: "Sorry, try again later",
@@ -212,6 +222,6 @@ const URLCard: React.FC<{
       </div>
     </IonCard>
   )
-}
+})
 
 export default Tab2;

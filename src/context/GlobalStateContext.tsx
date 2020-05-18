@@ -66,27 +66,6 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
 
   useEffect(updateUser, []);
 
-  const updateAnnouncements = (callback: () => void) => {
-    if (user && user.batchId) {
-      setAnnouncements((prev) => []);
-      console.log("Updating Announcements state");
-      const { requestPromise } = request(
-        "/api/student/announcements/" + Date.now(),
-        { method: "GET" }
-      );
-      requestPromise
-        .then((res) => {
-          const { data } = res.data;
-          console.log(data);
-          setAnnouncements((prev) => data);
-        })
-        .catch((err) => console.log(err))
-        .finally(() => {
-          if (callback) callback();
-        });
-    }
-  };
-
   const loadMoreAnnouncements = (source?: CancelToken) => {
     if (announcementsLoading || !hasMoreAnnouncements) {
       return;
@@ -156,28 +135,6 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         });
     })
   }
-  const updateClassAnnouncements = (callback: () => void) => {
-    if (user && user.batchId) {
-      setClassAnnouncements((prev) => []);
-      console.log("Updating Class announcements state");
-      const { requestPromise } = request(
-        "/api/student/class-announcements/" + user.batchId,
-        { method: "GET" }
-      );
-
-      requestPromise
-        .then((res) => {
-          const data = res.data;
-          console.log(data.length);
-          setClassAnnouncements((prev) => data);
-        })
-        .catch((err) => console.log(err))
-        .finally(() => {
-          if (callback) callback();
-        });
-    }
-  };
-
   const refreshAnnouncements = () => {
     setAnnouncements(prev => []);
     setHasMoreAnnouncements(prev => true);
@@ -257,10 +214,8 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         user,
         setUser,
         classAnnouncements,
-        updateClassAnnouncements,
         announcements,
-        updateAnnouncements,
-        setClassAnnouncements,
+        // setClassAnnouncements,
         hideTabBar,
         setHideTabBar,
         loadResourceURL,

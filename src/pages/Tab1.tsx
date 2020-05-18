@@ -1,21 +1,36 @@
-import React, { useContext } from "react";
-import { IonContent, IonPage, IonIcon, IonRefresher, IonRefresherContent } from "@ionic/react";
+import React, { useContext, useEffect } from "react";
+import { IonContent, IonPage, IonIcon, IonRefresher, IonRefresherContent, isPlatform } from "@ionic/react";
 import "./Tab.css";
 import { home, search, filter } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
 import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
-import { ClassAnnouncement } from "../interface/TypeInterface";
+import { ClassAnnouncement, Announcement } from "../interface/TypeInterface";
 import { useSpring, animated } from "react-spring";
 import { EmptyComponent, Loading } from "../components/EmptyComponent";
+import { AppMinimize } from '@ionic-native/app-minimize';
+import { Plugins } from "@capacitor/core";
+
 
 import FlatList from "flatlist-react";
 const { timeSince } = Constant;
 
 const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
+  useEffect(() => {
+    Plugins.App.addListener("backButton", () => {
+      if (isPlatform("android")) {
+        AppMinimize.minimize();
+      }
+    });
+    // Application.requestPermissions ? Application.requestPermissions().then()
+    // console.log(action)
+    return () => {
+      Plugins.App.removeAllListeners();
+    };
+  }, []);
   const { classAnnouncements, refreshClassAnnouncements, loadMoreClassAnnouncements, hasMoreClassAnnouncements, classAnnouncementsLoading } = useContext(GlobalStateContext)!;
   return (
-    <IonPage>
+    <IonPage >
       <IonContent>
         <IonRefresher slot="fixed" onIonRefresh={(event) => {
           refreshClassAnnouncements();
@@ -33,18 +48,6 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
               </div>
               <div className="title">Announcements</div>
               <div className="actions">
-                {/* <IonIcon
-                  icon={filter}
-                  onClick={() => {
-                    // if (setClassAnnouncements && classAnnouncements) {
-                    //   setClassAnnouncements([
-                    //     ...classAnnouncements,
-                    //     ...classAnnouncements,
-                    //   ]);
-                    // }
-                  }}
-                />
-                <IonIcon icon={search} /> */}
               </div>
             </div>
           </div>
@@ -52,12 +55,7 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
             <div className="announcement-list">
               <FlatList
                 list={classAnnouncements ? classAnnouncements : []}
-                renderItem={(announcemnent, index) => (
-                  // <div className="school-card" key={""}>
-                  //   <div className="card-title">{""}</div>
-                  //   <div className="card-message">{"announcemnent.message"}</div>
-                  //   <div className="author">{timeSince(0)}</div>
-                  // </div>
+                renderItem={(announcemnent: ClassAnnouncement, index: number) => (
                   <AnnouncementCard
                     item={announcemnent}
                     key={index}
@@ -73,20 +71,6 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
                   else return <EmptyComponent />;
                 }}
               />
-              {/* {classAnnouncements?.map(
-                (announcemnent: ClassAnnouncement, index: number) => (
-                  // <div className="school-card" key={""}>
-                  //   <div className="card-title">{""}</div>
-                  //   <div className="card-message">{"announcemnent.message"}</div>
-                  //   <div className="author">{timeSince(0)}</div>
-                  // </div>
-                  <AnnouncementCard
-                    item={announcemnent}
-                    key={index}
-                    index={index}
-                  />
-                )
-              )} */}
             </div>
           </div>
         </div>
@@ -105,11 +89,11 @@ const AnnouncementCard: React.FC<{
     delay: (typeof index === "string" ? parseInt(index) : index) * 200,
   });
   return (
-    <animated.div style={props} className="school-card">
+    <div className="school-card">
       <div className="card-title">{item.subject}</div>
       <div className="card-message">{item.message}</div>
       <div className="author">{`${timeSince(item.timeStamp)}`}</div>
-    </animated.div>
+    </div>
   );
 };
 

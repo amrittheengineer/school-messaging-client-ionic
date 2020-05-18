@@ -1,10 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { GalleryContext } from '../context/GalleryContext'
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps, useHistory } from 'react-router';
 import { IonPage, IonContent, IonLoading, IonSlides, IonSlide, IonIcon, IonImg } from '@ionic/react'
 import { Toast } from '@capacitor/core';
 import { downloadOutline } from 'ionicons/icons';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import Carousel, { Modal, ModalGateway } from 'react-images';
+
 
 
 
@@ -16,57 +18,23 @@ const Gallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match }) =>
         speed: 400
     };
 
+    const { goBack } = useHistory();
+
     const [downloading, setDownloading] = useState<string>("");
 
 
     return (
-        <IonPage>
+        <IonPage id="gallery">
             <IonContent className="gallery-page">
                 <IonLoading isOpen={downloading !== ""} message={downloading} />
-
-                <IonSlides className="gallery-slides" options={slideOpts}>
-                    {
-                        albumPhotos.map((photo, index) => {
-                            return (
-                                <IonSlide key={index} className="image-slide">
-                                    <TransformWrapper options={{ centerContent: true }}  >
-                                        <div className="gallery-image-container">
-                                            <div className="image-actions">
-
-                                                <IonIcon icon={downloadOutline} onClick={() => {
-                                                    setDownloading("Downloading");
-                                                    downloadFile(photo.url, photo.name, photo.type).then(() => {
-                                                        setDownloading("");
-                                                        Toast.show({ text: "Downloaded.", duration: "short" });
-                                                        // LocalNotifications.schedule({
-                                                        //   notifications: [
-                                                        //     {
-                                                        //       title: "Download Completed!",
-                                                        //       body: `Open Gallery to view the image.`,
-                                                        //       id: 1
-                                                        //     },
-                                                        //   ],
-                                                        // })
-                                                    }).catch(_err => {
-                                                        setDownloading("");
-                                                    })
-                                                }} className="download-icon" />
-                                            </div>
-                                            <div className="gallery-image-holder">
-                                                <div className="gallery-transform">
-
-                                                    <TransformComponent>
-                                                        <IonImg className="gallery-image" src={photo.url} />
-                                                    </TransformComponent>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </TransformWrapper>
-                                </IonSlide>
-                            )
-                        })
-                    }
-                </IonSlides>
+                <ModalGateway>
+                    <Modal closeOnBackdropClick={false} onClose={() => {
+                        console.log("Go back called");
+                        goBack();
+                    }}>
+                        <Carousel currentIndex={parseInt(match.params.index)} views={albumPhotos.map(({ url }) => ({ source: { regular: url, download: url, fullscreen: url, thumbnail: url } }))} />
+                    </Modal>
+                </ModalGateway>
             </IonContent>
         </IonPage>
     )

@@ -4,11 +4,11 @@ import { CancelToken } from "axios";
 export interface GlobalStateContextInterface {
   user: User | null;
   setUser: Dispatch<SetStateAction<User | null>>; //(user: User) => void;
-  setClassAnnouncements: Dispatch<SetStateAction<Array<ClassAnnouncement>>>; //(user: Array<ClassAnnouncement>) => void;
+  // setClassAnnouncements: Dispatch<SetStateAction<Array<ClassAnnouncement>>>; //(user: Array<ClassAnnouncement>) => void;
   classAnnouncements: Array<ClassAnnouncement>;
-  updateClassAnnouncements: (callback: () => void) => void;
+  // updateClassAnnouncements: (callback: () => void) => void;
   announcements: Array<Announcement>;
-  updateAnnouncements: (callback: () => void) => void;
+  // updateAnnouncements: (callback: () => void) => void;
   hideTabBar: boolean;
   setHideTabBar: Dispatch<SetStateAction<boolean>>;
   loadResourceURL: (url: string) => Promise<any>;

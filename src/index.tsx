@@ -3,28 +3,40 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Main from "./Main";
 import * as serviceWorker from "./serviceWorker";
-import { isPlatform } from "@ionic/react";
+import { isPlatform, setupConfig } from "@ionic/react";
 import { Plugins } from "@capacitor/core";
 
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-        .register("./firebase-messaging-sw.js")
-        .then(function (registration) {
-            console.log("Registration successful, scope is:", registration.scope);
-        })
-        .catch(function (err) {
-            console.log("Service worker registration failed, error:", err);
-        });
-}
+setupConfig({
+    animated: false
+})
+
+
 
 if (isPlatform("capacitor")) {
-    const { PushNotifications, LocalNotifications } = Plugins
+    const { PushNotifications } = Plugins
     PushNotifications.requestPermission().then(({ granted }) => {
         if (granted) {
-            PushNotifications.register();
+            PushNotifications.register().catch(err => {
+                // alert(err);
+                console.log(err)
+            }
+            )
         }
-    });
+    }).catch(err => {
+        console.log(err);
 
+    })
+} else {
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+            .register("./firebase-messaging-sw.js")
+            .then(function (registration) {
+                console.log("Registration successful, scope is:", registration.scope);
+            })
+            .catch(function (err) {
+                console.log("Service worker registration failed, error:", err);
+            });
+    }
 }
 
 // setupConfig({
