@@ -25,3 +25,22 @@ export const Loading: React.FC = () => {
         </div>
     );
 };
+export const LoadingDark: React.FC = () => {
+    return (
+        <div className="album-progress-container">
+            <div className="album-progress">
+                <IonSpinner className="spinner-color-white" />
+                <div style={{ color: "#fff" }}>Loading</div>
+            </div>
+        </div>
+    )
+}
+export const Error: React.FC = () => {
+    return (
+        <div className="album-progress-container">
+            <div className="album-progress">
+                <div style={{ color: "#fff" }}>Something went wrong.</div>
+            </div>
+        </div>
+    )
+}

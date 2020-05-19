@@ -27,9 +27,9 @@ const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) =
     });
     // Application.requestPermissions ? Application.requestPermissions().then()
     // console.log(action)
-    return () => {
-      Plugins.App.removeAllListeners();
-    };
+    // return () => {
+    //   Plugins.App.removeAllListeners();
+    // };
   }, []);
   const { announcements, setCurrentPost, hasMoreAnnouncements, loadMoreAnnouncements, announcementsLoading, refreshAnnouncements } = useContext(GlobalStateContext)!;
   const [loading, setLoading] = useState<boolean>(false);

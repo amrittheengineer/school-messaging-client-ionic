@@ -6,9 +6,9 @@ import * as serviceWorker from "./serviceWorker";
 import { isPlatform, setupConfig } from "@ionic/react";
 import { Plugins } from "@capacitor/core";
 
-setupConfig({
-    animated: false
-})
+// setupConfig({
+//     animated: false
+// })
 
 
 

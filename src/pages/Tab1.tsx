@@ -24,9 +24,9 @@ const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
     });
     // Application.requestPermissions ? Application.requestPermissions().then()
     // console.log(action)
-    return () => {
-      Plugins.App.removeAllListeners();
-    };
+    // return () => {
+    //   Plugins.App.removeAllListeners();
+    // };
   }, []);
   const { classAnnouncements, refreshClassAnnouncements, loadMoreClassAnnouncements, hasMoreClassAnnouncements, classAnnouncementsLoading } = useContext(GlobalStateContext)!;
   return (

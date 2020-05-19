@@ -287,52 +287,85 @@ $color: #e74c3c;
     }
   }
 }
-// .gallery-page {
-//   display: flex;
-//   height: 100%;
-// }
-
-.gallery-slides {
+.spinner-color-white {
+  color: #fff;
+}
+.gallery-page {
+  display: flex;
   height: 100%;
-  .image-slide {
+  flex-direction: column;
+  background-color: #000;
+  .image-actions {
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
     display: flex;
-    flex-direction: column;
-    .gallery-image-container {
-      background-color: #000;
-      width: 100%;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      .gallery-image-holder {
-        touch-action: pan-x pan-y pinch-zoom;
-        align-self: center;
-        // flex: 1;
-        display: flex;
-        // min-height: 100%;
-        margin: auto 0;
-        // height: 75%;
-      }
-      .image-actions {
-        // height: 25%;
-        // position: fixed;
-        // flex-grow: 1;
-        padding: 16px 16px 0 0;
-        display: flex;
-        justify-content: flex-end;
-        .download-icon {
-          color: #fff;
-          height: 48px;
-          width: 48px;
-        }
+    color: #fff;
+    justify-content: space-between;
+    order: 2;
+    padding: 16px;
+    .download-icon,
+    .back-icon {
+      height: 40px;
+      width: 40px;
+    }
+  }
+  .slides-container {
+    flex: 1;
+    display: flex;
+    order: 1;
+    // align-items: center;
+    // justify-content: center;
+    .image-slide {
+      // margin: auto 0;
+      // align-self: center;
+      width: 100vw;
+      .gallery-image {
+        width: 100%;
       }
     }
   }
 }
-.gallery-image {
-  // min-height: 10vh;
-  width: 100vw;
-}
+
+// .gallery-slides {
+//   height: 100%;
+//   .image-slide {
+//     display: flex;
+//     flex-direction: column;
+//     .gallery-image-container {
+//       background-color: #000;
+//       width: 100%;
+//       flex: 1;
+//       display: flex;
+//       flex-direction: column;
+//       justify-content: center;
+//       .gallery-image {
+//         // min-height: 10vh;
+//         width: 100vw;
+//         display: flex;
+//         img {
+//           touch-action: pan-x pan-y pinch-zoom;
+//           margin: auto;
+//         }
+//         flex: 1;
+//       }
+//       .image-actions {
+//         // height: 25%;
+//         // position: fixed;
+//         // flex-grow: 1;
+//         padding: 16px 16px 0 0;
+//         display: flex;
+//         justify-content: flex-end;
+//         .download-icon {
+//           color: #fff;
+//           height: 48px;
+//           width: 48px;
+//         }
+//       }
+//     }
+//   }
+// }
+
 // .gallery-image-container {
 //   display: flex;
 //   background-color: #000;

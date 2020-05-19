@@ -58,99 +58,68 @@ const Application = Plugins.App;
 
 const App: React.FC<RouteComponentProps> = () => {
   // const history = useHistory();
-  const { replace, action } = useHistory();
-  useEffect(() => {
-    Application.addListener("backButton", () => {
-      if (isPlatform("android")) {
-        AppMinimize.minimize();
-      }
-    });
-    // Application.requestPermissions ? Application.requestPermissions().then()
-    // console.log(action)
-    return () => {
-      Application.removeAllListeners();
-    };
-  }, []);
-
-
+  const [selectedTab, setSelectedTab] = useState<string>("tab2")
+  const { replace } = useHistory();
   return (
-    <IonPage id="app">
-      <IonContent>
-        <IonReactRouter>
-          <IonTabs
-          >
-            <IonRouterOutlet>
-              <Route path="/app/tab1" component={Tab1} exact={true} />
-              <Route path="/app/tab2" component={Tab2} exact={true} />
-              <Route path="/app/gallery" component={Tab3} exact={true} />
+    <IonTabs
+    >
+      <IonRouterOutlet>
+        <Route path="/app/tab1" component={Tab1} exact={true} />
+        <Route path="/app/tab2" component={Tab2} exact={true} />
+        <Route path="/app/gallery" component={Tab3} exact={true} />
 
-              {/* <Route
+        {/* <Route
                 path="/app"
                 render={() => <Redirect to="/app/tab2" />}
                 exact={true}
               /> */}
-              {/* <Route
+        {/* <Route
                 path="/"
                 render={() => <Redirect to="/app/tab2" />}
                 exact={true}
               /> */}
-              <Route path="/app/album/:id" component={Album} exact={true} />
-              <Route
-                path="/app/video-player"
-                component={VideoPlayer}
-                exact={true}
-              />
-              <Route
-                path="/app/image-gallery/:index"
-                component={Gallery}
-                exact={true}
-              />
-              <Route
-                path="/app/post-images-gallery/:index"
-                component={PostGallery}
-                exact={true}
-              />
-            </IonRouterOutlet>
-            <IonTabBar slot="bottom">
-              <IonTabButton
-                // disabled={currentTab === "tab1"}
-                tab="tab1"
 
-                // onClick={(e) => {
-                //   replace("/app/tab1")
-                // }}
-                href="/app/tab1"
-              >
-                <IonIcon icon={home} />
-                <IonLabel>Announcements</IonLabel>
-              </IonTabButton>
-              <IonTabButton
-                // disabled={currentTab === "tab2"}
-                tab="tab2"
-                // onClick={(e) => {
-                //   replace("/app/tab2")
-                // }}
-                href="/app/tab2"
-              >
-                <IonIcon icon={chatbubbleEllipses} />
-                <IonLabel>Posts</IonLabel>
-              </IonTabButton>
-              <IonTabButton
-                // disabled={currentTab === "gallery"}
-                tab="gallery"
-                // onClick={(e) => {
-                //   replace("/app/gallery")
-                // }}
-                href="/app/gallery"
-              >
-                <IonIcon icon={image} />
-                <IonLabel>Gallery</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
-          </IonTabs>
-        </IonReactRouter>
-      </IonContent>
-    </IonPage>
+      </IonRouterOutlet>
+      <IonTabBar slot="bottom">
+        <IonTabButton
+          selected={selectedTab === "tab1"}
+          tab="tab1"
+          // selected={true}
+          onClick={(e) => {
+            setSelectedTab("tab1")
+            replace("/app/tab1")
+          }}
+        // href="/app/tab1"
+        >
+          <IonIcon icon={home} />
+          <IonLabel>Announcements</IonLabel>
+        </IonTabButton>
+        <IonTabButton
+          selected={selectedTab === "tab2"}
+          tab="tab2"
+          onClick={(e) => {
+            setSelectedTab("tab2")
+            replace("/app/tab2")
+          }}
+        // href="/app/tab2"
+        >
+          <IonIcon icon={chatbubbleEllipses} />
+          <IonLabel>Posts</IonLabel>
+        </IonTabButton>
+        <IonTabButton
+          selected={selectedTab === "gallery"}
+          tab="gallery"
+          onClick={(e) => {
+            setSelectedTab("gallery")
+            replace("/app/gallery")
+          }}
+        // href="/app/gallery"
+        >
+          <IonIcon icon={image} />
+          <IonLabel>Gallery</IonLabel>
+        </IonTabButton>
+      </IonTabBar>
+    </IonTabs>
   );
 };
 

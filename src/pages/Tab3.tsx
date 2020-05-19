@@ -28,9 +28,9 @@ const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
     });
     // Application.requestPermissions ? Application.requestPermissions().then()
     // console.log(action)
-    return () => {
-      Plugins.App.removeAllListeners();
-    };
+    // return () => {
+    //   Plugins.App.removeAllListeners();
+    // };
   }, []);
   const albumList = useContext(GalleryContext)!.albumList;
 

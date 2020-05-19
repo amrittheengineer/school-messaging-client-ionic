@@ -51,10 +51,30 @@ const Main: React.FC = () => {
             <GalleryContextProvider>
                 <IonApp>
                     <IonReactRouter>
-                        <Route path="/auth" component={Auth} exact={true} />
-                        <Route path="/spinner" component={Spinner} exact={true} />
-                        <Route path="/" render={() => <Redirect to="/spinner" />} />
-                        <Route path="/app/:tab" component={App} />
+                        <IonRouterOutlet>
+                            <Route path="/app/album/:id" component={Album} exact={true} />
+                            <Route
+                                path="/app/video-player"
+                                component={VideoPlayer}
+                                exact={true}
+                            />
+                            <Route
+                                path="/app/image-gallery/:index"
+                                component={Gallery}
+                                exact={true}
+                            />
+                            <Route
+                                path="/app/post-images-gallery/:index"
+                                component={PostGallery}
+                                exact={true}
+                            />
+
+                            <Route path="/app/:id" component={App} exact={true} />
+                            <Route path="/auth" component={Auth} exact={true} />
+                            <Route path="/spinner" component={Spinner} exact={true} />
+                            <Route path="/" render={() => <Redirect to="/spinner" />} />
+
+                        </IonRouterOutlet>
                         {/* <Route path="/album/:id" component={Album} exact={true} />
                         <Route
                             path="/video-player"
@@ -101,6 +121,7 @@ const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
             // alert(value)
             if (value) {
                 history.replace("/app/tab2")
+                // alert("Replaced")
             } else {
                 throw new Error("No user")
             }

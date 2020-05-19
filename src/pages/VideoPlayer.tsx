@@ -11,24 +11,18 @@ const VideoPlayer: React.FC<RouteComponentProps> = ({
     const [url, setUrl] = useState<string>("")
     const videoElement = useRef<HTMLVideoElement | null>(null);
     useEffect(() => {
-        Application.removeAllListeners();
         const urlSplit = location.search.split("?url=");
         try {
             setUrl(decodeURIComponent(urlSplit[1]));
         } catch (err) {
             history.goBack();
         }
-
-        return () => {
-            Application.addListener("backButton", () => {
-                Application.exitApp();
-            })
-        };
     }, []);
 
     useIonViewWillLeave(() => {
         if (videoElement.current) {
             videoElement.current.pause();
+            // history.goBack();
         }
     }, [])
     return (
@@ -39,18 +33,19 @@ const VideoPlayer: React.FC<RouteComponentProps> = ({
                     {url && <video
                         className="album-video-player"
                         controls
+                        autoPlay
                         src={url}
                         ref={videoElement}
                         controlsList="nodownload"
                         disablePictureInPicture
-                        onPlay={e => {
-                            console.log(videoElement.current);
+                    // onPlay={e => {
+                    //     console.log(videoElement.current);
 
-                            let videoPlayer: HTMLVideoElement = videoElement.current!;
+                    //     let videoPlayer: HTMLVideoElement = videoElement.current!;
 
-                            if (videoPlayer.requestFullscreen) videoPlayer.requestFullscreen()
+                    //     if (videoPlayer.requestFullscreen) videoPlayer.requestFullscreen()
 
-                        }}
+                    // }}
                     />}
                 </div>
             </IonContent>
