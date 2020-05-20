@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import {
   IonContent,
   IonIcon,
@@ -6,32 +6,32 @@ import {
   IonCard,
   IonImg,
   IonThumbnail,
-  isPlatform,
+  useIonViewWillLeave, useIonViewDidEnter, isPlatform
 } from "@ionic/react";
 import "./Tab.css";
-import { image, filter, search } from "ionicons/icons";
+import { image } from "ionicons/icons";
 import { Album } from "../interface/TypeInterface";
-import { animated, useSpring } from "react-spring";
 import { GalleryContext } from "../context/GalleryContext";
 import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
-import { AppMinimize } from '@ionic-native/app-minimize';
 import { Plugins } from "@capacitor/core";
+import { AppMinimize } from "@ionic-native/app-minimize";
 const { getStorageURL } = Constant;
 
-const Tab3: React.FC<RouteComponentProps> = ({ history }) => {
-  useEffect(() => {
+const Tab3: React.FC<RouteComponentProps> = () => {
+  useIonViewDidEnter(() => {
+    // alert("Set")
     Plugins.App.addListener("backButton", () => {
       if (isPlatform("android")) {
         AppMinimize.minimize();
+      } else {
+        Plugins.App.exitApp();
       }
     });
-    // Application.requestPermissions ? Application.requestPermissions().then()
-    // console.log(action)
-    // return () => {
-    //   Plugins.App.removeAllListeners();
-    // };
-  }, []);
+  }, [])
+  useIonViewWillLeave(() => {
+    Plugins.App.removeAllListeners();
+  }, [])
   const albumList = useContext(GalleryContext)!.albumList;
 
   return (

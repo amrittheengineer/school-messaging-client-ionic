@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Main from "./Main";
 import * as serviceWorker from "./serviceWorker";
-import { isPlatform, setupConfig } from "@ionic/react";
+import { isPlatform } from "@ionic/react";
 import { Plugins } from "@capacitor/core";
 
 // setupConfig({

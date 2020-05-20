@@ -36,17 +36,17 @@ const PostGallery: React.FC<RouteComponentProps<{ index: string }>> = ({ match, 
         }
     }, [toastMessage]);
 
-    useEffect(() => {
-        Application.removeAllListeners();
+    // useEffect(() => {
+    //     Application.removeAllListeners();
 
-        return () => {
-            Application.addListener("backButton", () => {
-                if (isPlatform("android")) {
-                    AppMinimize.minimize();
-                }
-            });
-        }
-    }, []);
+    //     return () => {
+    //         Application.addListener("backButton", () => {
+    //             if (isPlatform("android")) {
+    //                 AppMinimize.minimize();
+    //             }
+    //         });
+    //     }
+    // }, []);
 
 
     return (

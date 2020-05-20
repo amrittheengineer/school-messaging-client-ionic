@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { IonApp, IonPage, IonRouterOutlet, IonContent, IonSpinner, useIonViewWillEnter, isPlatform } from '@ionic/react';
+import { IonApp, IonPage, IonRouterOutlet, IonContent, IonSpinner, isPlatform } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Route, RouteComponentProps, Redirect } from 'react-router';
 import { GlobalStateContextProvider } from './context/GlobalStateContext'
@@ -25,27 +25,27 @@ import Album from './pages/Album';
 
 
 const Main: React.FC = () => {
-    useEffect(() => {
-        Storage.get({ key: "userCred" }).then(({ value }) => {
-            if (value) {
-                return (
-                    <Route
-                        path="/"
-                        render={() => <Redirect to="/app" />}
-                        exact={true}
-                    />
-                )
-            } else {
-                throw new Error("No user")
-            }
-        }).catch(err => {
-            return <Route
-                path="/"
-                render={() => <Redirect to="/auth" />}
-                exact={true}
-            />
-        })
-    }, [])
+    // useEffect(() => {
+    //     Storage.get({ key: "userCred" }).then(({ value }) => {
+    //         if (value) {
+    //             return (
+    //                 <Route
+    //                     path="/"
+    //                     render={() => <Redirect to="/app" />}
+    //                     exact={true}
+    //                 />
+    //             )
+    //         } else {
+    //             throw new Error("No user")
+    //         }
+    //     }).catch(err => {
+    //         return <Route
+    //             path="/"
+    //             render={() => <Redirect to="/auth" />}
+    //             exact={true}
+    //         />
+    //     })
+    // }, [])
     return (
         <GlobalStateContextProvider>
             <GalleryContextProvider>
@@ -114,7 +114,7 @@ const Main: React.FC = () => {
         </GlobalStateContextProvider>
     )
 }
-// Storage.set({ key: "userCred", value: "" })
+// Storage.set({ key: "batchId", value: "8bb9c9f180" })
 const Spinner: React.FC<RouteComponentProps> = ({ history }) => {
     useEffect(() => {
         Storage.get({ key: "batchId" }).then(({ value }) => {

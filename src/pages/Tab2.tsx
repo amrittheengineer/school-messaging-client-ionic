@@ -1,36 +1,47 @@
 import React, { useContext, useState, useEffect, } from "react";
-import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem, IonLoading, IonRefresher, IonRefresherContent, isPlatform } from "@ionic/react";
+import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem, IonLoading, IonRefresher, IonRefresherContent, useIonViewWillLeave, useIonViewWillEnter, isPlatform, useIonViewDidEnter } from "@ionic/react";
 import "./Tab.css";
-import { chatbubbleEllipses, search, linkOutline, linkSharp } from "ionicons/icons";
+import { chatbubbleEllipses } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
 import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
 import { Announcement } from "../interface/TypeInterface";
-import { useSpring, animated } from "react-spring";
 import FlatList from "flatlist-react";
 import { EmptyComponent, Loading } from "../components/EmptyComponent";
+import { Plugins } from "@capacitor/core";
+import { AppMinimize } from "@ionic-native/app-minimize";
 import { Toast } from "@capacitor/core";
 import linkIcon from '../images/link.svg';
-import { AppMinimize } from '@ionic-native/app-minimize';
-import { Plugins } from "@capacitor/core";
 
 
 const { timeSince, getStorageURL } = Constant;
 
 const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) => {
-
-  useEffect(() => {
+  // useEffect(() => {
+  //   Plugins.App.addListener("backButton", () => {
+  //     if (isPlatform("android")) {
+  //       AppMinimize.minimize();
+  //     }
+  //   });
+  //   // Application.requestPermissions ? Application.requestPermissions().then()
+  //   // console.log(action)
+  //   // return () => {
+  //   //   Plugins.App.removeAllListeners();
+  //   // };
+  // }, []);
+  useIonViewDidEnter(() => {
+    // alert("Set")
     Plugins.App.addListener("backButton", () => {
       if (isPlatform("android")) {
         AppMinimize.minimize();
+      } else {
+        Plugins.App.exitApp();
       }
     });
-    // Application.requestPermissions ? Application.requestPermissions().then()
-    // console.log(action)
-    // return () => {
-    //   Plugins.App.removeAllListeners();
-    // };
-  }, []);
+  }, [])
+  useIonViewWillLeave(() => {
+    Plugins.App.removeAllListeners();
+  }, [])
   const { announcements, setCurrentPost, hasMoreAnnouncements, loadMoreAnnouncements, announcementsLoading, refreshAnnouncements } = useContext(GlobalStateContext)!;
   const [loading, setLoading] = useState<boolean>(false);
   return (
@@ -77,7 +88,6 @@ const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) =
                   <PostCard
                     item={announcement}
                     key={index}
-                    index={index}
                     setLoading={(load: boolean) => {
                       setLoading(load);
                     }}
@@ -113,11 +123,10 @@ const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) =
 
 const PostCard: React.FC<{
   item: Announcement;
-  index: number;
   setLoading: (load: boolean) => void;
   openVideoPlayer: (url: string) => void;
   openPostImage: (index: number) => void;
-}> = React.memo(({ item, index, setLoading, openVideoPlayer, openPostImage }) => {
+}> = React.memo(({ item, setLoading, openVideoPlayer, openPostImage }) => {
   return (
     <div className="school-card">
       <div className="card-title">{"Admin"}</div>
@@ -176,7 +185,9 @@ const URLCard: React.FC<{
           setLink(res.title);
           setThumbnail(res.thumbnail_url);
         })
-        .catch((err) => console.log(err));
+        .catch((_) => {
+
+        });
     }
   }, [])
 

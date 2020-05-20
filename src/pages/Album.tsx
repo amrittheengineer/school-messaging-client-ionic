@@ -5,31 +5,24 @@ import {
   IonSegment,
   IonSegmentButton,
   IonContent,
-  IonRouterLink,
-  IonRouterOutlet,
-  IonSlide,
-  IonSlides,
   IonButtons,
   IonButton,
   IonIcon,
   IonImg,
   IonLoading,
   IonHeader,
-  useIonViewDidEnter,
   IonBackButton,
-  isPlatform
 } from "@ionic/react";
 
 // import { useFilesystem, base64FromPath } from '@ionic/react-hooks/filesystem';
 // import { NativePageTransitions } from "@ionic-native/native-page-transitions";
-import { RouteComponentProps, Prompt, useHistory, withRouter, WithRouterProps } from "react-router";
+import { RouteComponentProps, useHistory } from "react-router";
 import { GalleryContext } from "../context/GalleryContext";
 import { Plugins } from "@capacitor/core";
 import { Video } from "../interface/TypeInterface";
 import FlatList from "flatlist-react";
 import { playCircle, arrowBack } from "ionicons/icons";
 import { EmptyComponent, Loading } from "../components/EmptyComponent";
-import { AppMinimize } from '@ionic-native/app-minimize';
 const Application = Plugins.App;
 const { LocalNotifications } = Plugins;
 // const { writeFile } = useFilesystem();
@@ -40,8 +33,6 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = (({ match }) => {
   const [selected, setSelected] = useState<string>("photos");
   const [downloading, setDownloading] = useState<string>("");
   useEffect(() => {
-
-
     context?.setCurrentAlbum((previousAlbum) => {
       if (previousAlbum === match.params.id) {
         return previousAlbum;
@@ -51,15 +42,15 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = (({ match }) => {
       }
     });
 
-    Application.removeAllListeners();
+    // Application.removeAllListeners();
 
-    return () => {
-      Application.addListener("backButton", () => {
-        if (isPlatform("android")) {
-          AppMinimize.minimize();
-        }
-      });
-    }
+    // return () => {
+    //   Application.addListener("backButton", () => {
+    //     if (isPlatform("android")) {
+    //       AppMinimize.minimize();
+    //     }
+    //   });
+    // }
 
   }, []);
   const history = useHistory();
@@ -195,7 +186,6 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = (({ match }) => {
                 return (
                   <VideoCard
                     video={video}
-                    delay={ind}
                     key={ind}
                     onClick={() => {
                       history.push("/app/video-player/?url=" + encodeURIComponent(video.url));
@@ -257,10 +247,9 @@ const Album: React.FC<RouteComponentProps<{ id: string }>> = (({ match }) => {
 
 const VideoCard: React.FC<{
   video: Video;
-  delay: number;
   onClick: () => void;
   downloadVideo: () => void;
-}> = ({ video, delay, onClick, downloadVideo }) => {
+}> = ({ video, onClick, downloadVideo }) => {
   const downloadElement = useRef<HTMLAnchorElement | null>(null);
   return (
     <div className="video-card">
@@ -280,7 +269,7 @@ const VideoCard: React.FC<{
           }}>
             Download
           </IonButton>
-          <a href={video.url} title={video.name} download={video.name} target="_self" ref={downloadElement}></a>
+          <a href={video.url} title={video.name} download={video.name} target="_self" ref={downloadElement}>{""}</a>
         </div>
       </div>
     </div>

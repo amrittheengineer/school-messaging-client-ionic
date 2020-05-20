@@ -1,24 +1,15 @@
-import React, { useEffect, useState, useContext, useRef } from "react";
-import { Redirect, Route } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Route } from "react-router-dom";
 import { RouteComponentProps, useHistory } from "react-router";
 import {
-  IonLoading,
   IonIcon,
   IonLabel,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
   IonTabs,
-  IonPage,
-  IonContent,
-  IonSlide,
-  IonSlides,
-  IonImg,
-  IonApp,
-  isPlatform
 } from "@ionic/react";
-import { IonReactRouter } from "@ionic/react-router";
-import { home, image, chatbubbleEllipses, downloadOutline } from "ionicons/icons";
+import { home, image, chatbubbleEllipses } from "ionicons/icons";
 import Tab1 from "./pages/Tab1";
 import Tab2 from "./pages/Tab2";
 import Tab3 from "./pages/Tab3";
@@ -41,28 +32,16 @@ import "@ionic/react/css/display.css";
 
 /* Theme variables */
 import "./theme/variables.css";
-import {
-  GlobalStateContextProvider,
-  GlobalStateContext
-} from "./context/GlobalStateContext";
-import { GalleryContext } from "./context/GalleryContext";
-import { GalleryContextProvider } from "./context/GalleryContext";
-import { Plugins } from "@capacitor/core";
-import Album from './pages/Album';
-import Gallery from './pages/Gallery';
-import PostGallery from './pages/PostGallery';
-import VideoPlayer from './pages/VideoPlayer';
-import { AppMinimize } from '@ionic-native/app-minimize';
-
-const Application = Plugins.App;
-
-const App: React.FC<RouteComponentProps> = () => {
+const App: React.FC<RouteComponentProps> = ({ location }) => {
   // const history = useHistory();
-  const [selectedTab, setSelectedTab] = useState<string>("tab2")
+  useEffect(() => {
+
+  }, []);
+
+
   const { replace } = useHistory();
   return (
-    <IonTabs
-    >
+    <IonTabs>
       <IonRouterOutlet>
         <Route path="/app/tab1" component={Tab1} exact={true} />
         <Route path="/app/tab2" component={Tab2} exact={true} />
@@ -82,11 +61,10 @@ const App: React.FC<RouteComponentProps> = () => {
       </IonRouterOutlet>
       <IonTabBar slot="bottom">
         <IonTabButton
-          selected={selectedTab === "tab1"}
+          selected={"tab1" === location.pathname.split("/app/")[1]}
           tab="tab1"
           // selected={true}
-          onClick={(e) => {
-            setSelectedTab("tab1")
+          onClick={() => {
             replace("/app/tab1")
           }}
         // href="/app/tab1"
@@ -95,10 +73,9 @@ const App: React.FC<RouteComponentProps> = () => {
           <IonLabel>Announcements</IonLabel>
         </IonTabButton>
         <IonTabButton
-          selected={selectedTab === "tab2"}
+          selected={"tab2" === location.pathname.split("/app/")[1]}
           tab="tab2"
-          onClick={(e) => {
-            setSelectedTab("tab2")
+          onClick={() => {
             replace("/app/tab2")
           }}
         // href="/app/tab2"
@@ -107,10 +84,9 @@ const App: React.FC<RouteComponentProps> = () => {
           <IonLabel>Posts</IonLabel>
         </IonTabButton>
         <IonTabButton
-          selected={selectedTab === "gallery"}
+          selected={"gallery" === location.pathname.split("/app/")[1]}
           tab="gallery"
-          onClick={(e) => {
-            setSelectedTab("gallery")
+          onClick={() => {
             replace("/app/gallery")
           }}
         // href="/app/gallery"

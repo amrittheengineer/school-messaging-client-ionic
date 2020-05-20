@@ -1,10 +1,11 @@
-import React, { createContext, useRef, useEffect } from 'react';
+import React, { createContext, useRef, useEffect, useContext } from 'react';
 import { SignUpContextInterface, UserDataRef } from '../interface/TypeInterface';
 import { FirebaseAuthentication } from '@ionic-native/firebase-authentication'
 import { Storage } from '@capacitor/core';
 import Constant from '../Constant';
 import { Plugins, PushNotificationToken } from "@capacitor/core";
 import request from '../modules/request';
+import { GlobalStateContext } from './GlobalStateContext';
 
 const { PushNotifications } = Plugins
 
@@ -12,6 +13,7 @@ const { PushNotifications } = Plugins
 export const SignUpContext = createContext<SignUpContextInterface | null>(null);
 
 export const SignUpContextProvider = (props: { children: any }) => {
+    const { setUser } = useContext(GlobalStateContext)!;
     const signInCallBack = useRef<(() => void)>(() => { });
     const classId = useRef<string>("");
     const setClassId = (id: string) => {
@@ -57,7 +59,9 @@ export const SignUpContextProvider = (props: { children: any }) => {
                 "registration",
                 (token: PushNotificationToken) => {
                     updateAPIFunction(data, token.value, resolve, reject);
-                    Storage.set({ key: "batchId", value: data.batchId });
+                    Storage.set({ key: "batchId", value: data.batchId }).finally(() => {
+                        setUser({ batchId: data.batchId })
+                    })
                     // alert(token.value);
                 }
             )
@@ -131,9 +135,6 @@ export const SignUpContextProvider = (props: { children: any }) => {
                 reject(err);
             }
         })
-    }
-    const resetAuth = () => {
-        verifIdFirebase.current = "";
     }
     return (
         <SignUpContext.Provider value={{ setSignInCallBack, sendOtpCapacitor, verifyOtpCapacitor, setClassId, updateUserData, setDataRef }}>

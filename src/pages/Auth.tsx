@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState, useReducer, useRef, useLayoutEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
-import { IonPage, IonContent, IonCard, IonLoading, IonButton, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonItem, IonIcon, isPlatform, useIonViewDidEnter, IonToast, } from '@ionic/react';
+import { IonPage, IonContent, IonCard, IonLoading, IonButton, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonItem, IonIcon, isPlatform, IonToast, useIonViewDidLeave, useIonViewWillLeave, } from '@ionic/react';
 import { SignUpContextProvider, SignUpContext } from '../context/SignUpContext';
 import { SignUpContextWebProvider, SignUpContextWeb } from '../context/SignUpContextWeb';
 import { firebase } from '../modules/firebase';
@@ -8,10 +8,10 @@ import { firebase } from '../modules/firebase';
 // import classRoom from '../images/classroom.svg';
 import introAvatar from '../images/get_started.svg';
 import request from '../modules/request';
-import { Toast, Plugins } from '@capacitor/core';
+import { Plugins } from '@capacitor/core';
 const Auth: React.FC<RouteComponentProps> = ({ history }) => {
     const onSignIn = () => {
-        history.replace("/app")
+        history.replace("/app/tab2")
     }
     if (isPlatform("capacitor") || isPlatform("cordova")) {
         return (
@@ -406,8 +406,6 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
     const [timer, setTimer] = useState<number>(0);
 
     const [screen, setScreen] = useState<number>(1);
-
-    const [loadingVisibility, setLoadingVisibility] = useState<boolean>(false);
     const [progressMessage, setProgressMessage] = useState<string>("");
     const timerInterval = useRef<NodeJS.Timeout | null>(null);
     const phone_string = useRef<string>("");
@@ -444,7 +442,11 @@ const AuthCore: React.FC<{ onSignIn: () => void; }> = ({ onSignIn }) => {
         })
 
         return () => App.removeAllListeners();
-    }, [screen, closeClicked])
+    }, [screen, closeClicked]);
+
+    useIonViewWillLeave(() => {
+        App.removeAllListeners();
+    })
     const otpSendDidClickAction = () => {
         // console.log(verifyCaptcha);
         // console.log(window.recaptchaVerifier);

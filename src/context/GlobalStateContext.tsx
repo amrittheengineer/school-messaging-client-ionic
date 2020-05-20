@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import axios, { Canceler, AxiosResponse, Cancel, CancelToken } from "axios";
+import axios, { Canceler, AxiosResponse, CancelToken } from "axios";
 import request from "../modules/request";
 import {
   ClassAnnouncement,

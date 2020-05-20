@@ -58,7 +58,7 @@ export const GalleryContextProvider = (props: { children: any }) => {
         xhr.open('GET', url, true);
         xhr.responseType = 'blob';
         xhr.onload = function () {
-          if (this.status == 200) {
+          if (this.status === 200) {
             var blob = new Blob([this.response], { type });
             var reader = new FileReader();
             reader.readAsDataURL(blob);

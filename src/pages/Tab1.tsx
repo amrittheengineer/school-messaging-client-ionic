@@ -1,33 +1,45 @@
-import React, { useContext, useEffect } from "react";
-import { IonContent, IonPage, IonIcon, IonRefresher, IonRefresherContent, isPlatform } from "@ionic/react";
+import React, { useContext } from "react";
+import { IonContent, IonPage, IonIcon, IonRefresher, IonRefresherContent, useIonViewWillLeave, useIonViewDidEnter, isPlatform } from "@ionic/react";
 import "./Tab.css";
-import { home, search, filter } from "ionicons/icons";
+import { home } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
 import Constant from "../Constant";
 import { RouteComponentProps } from "react-router";
-import { ClassAnnouncement, Announcement } from "../interface/TypeInterface";
-import { useSpring, animated } from "react-spring";
+import { ClassAnnouncement } from "../interface/TypeInterface";
 import { EmptyComponent, Loading } from "../components/EmptyComponent";
-import { AppMinimize } from '@ionic-native/app-minimize';
-import { Plugins } from "@capacitor/core";
 
 
 import FlatList from "flatlist-react";
+import { Plugins } from "@capacitor/core";
+import { AppMinimize } from "@ionic-native/app-minimize";
 const { timeSince } = Constant;
 
-const Tab1: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
-  useEffect(() => {
+const Tab1: React.FC<RouteComponentProps> = () => {
+  // useEffect(() => {
+  //   Plugins.App.addListener("backButton", () => {
+  //     if (isPlatform("android")) {
+  //       AppMinimize.minimize();
+  //     }
+  //   });
+  //   // Application.requestPermissions ? Application.requestPermissions().then()
+  //   // console.log(action)
+  //   // return () => {
+  //   //   Plugins.App.removeAllListeners();
+  //   // };
+  // }, []);
+  useIonViewDidEnter(() => {
+    // alert("Set")
     Plugins.App.addListener("backButton", () => {
       if (isPlatform("android")) {
         AppMinimize.minimize();
+      } else {
+        Plugins.App.exitApp();
       }
     });
-    // Application.requestPermissions ? Application.requestPermissions().then()
-    // console.log(action)
-    // return () => {
-    //   Plugins.App.removeAllListeners();
-    // };
-  }, []);
+  }, [])
+  useIonViewWillLeave(() => {
+    Plugins.App.removeAllListeners();
+  }, [])
   const { classAnnouncements, refreshClassAnnouncements, loadMoreClassAnnouncements, hasMoreClassAnnouncements, classAnnouncementsLoading } = useContext(GlobalStateContext)!;
   return (
     <IonPage >
@@ -83,11 +95,6 @@ const AnnouncementCard: React.FC<{
   item: ClassAnnouncement;
   index: number;
 }> = ({ item, index }) => {
-  const props = useSpring({
-    from: { transform: "scale(0.95)", opacity: 0 },
-    to: { transform: "scale(1)", opacity: 1 },
-    delay: (typeof index === "string" ? parseInt(index) : index) * 200,
-  });
   return (
     <div className="school-card">
       <div className="card-title">{item.subject}</div>

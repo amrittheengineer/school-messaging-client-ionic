@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
-import { IonPage, IonContent, useIonViewWillLeave, } from '@ionic/react'
-import { Plugins } from "@capacitor/core";
-const Application = Plugins.App;
+import { IonPage, IonContent, useIonViewWillLeave, IonBackButton, IonButtons, IonHeader, IonToolbar, } from '@ionic/react'
+import { arrowBack } from 'ionicons/icons';
 
 const VideoPlayer: React.FC<RouteComponentProps> = ({
     location,
@@ -11,6 +10,7 @@ const VideoPlayer: React.FC<RouteComponentProps> = ({
     const [url, setUrl] = useState<string>("")
     const videoElement = useRef<HTMLVideoElement | null>(null);
     useEffect(() => {
+        // Plugins.App.removeAllListeners();
         const urlSplit = location.search.split("?url=");
         try {
             setUrl(decodeURIComponent(urlSplit[1]));
@@ -22,12 +22,18 @@ const VideoPlayer: React.FC<RouteComponentProps> = ({
     useIonViewWillLeave(() => {
         if (videoElement.current) {
             videoElement.current.pause();
-            // history.goBack();
         }
     }, [])
     return (
 
         <IonPage>
+            <IonHeader>
+                <IonToolbar>
+                    <IonButtons slot="start">
+                        <IonBackButton icon={arrowBack} />
+                    </IonButtons>
+                </IonToolbar>
+            </IonHeader>
             <IonContent fullscreen={true}>
                 <div className="video-player">
                     {url && <video

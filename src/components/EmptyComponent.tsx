@@ -8,6 +8,7 @@ export const EmptyComponent: React.FC = () => {
                 <img
                     className="progress-image"
                     src={require("../images/nothing.svg")}
+                    alt="Empty"
                 />
                 <div>Nothing Here</div>
             </div>
