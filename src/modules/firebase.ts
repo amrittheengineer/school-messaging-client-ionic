@@ -21,5 +21,13 @@ export const firebase = firebaseApp;
 let messagingRef;
 try {
   messagingRef = app.messaging();
+  // messagingRef
+  //   .getToken()
+  //   .then((token) => {
+  //     alert(token);
+  //   })
+  //   .catch((err) => {
+  //     alert("No token " + err);
+  //   });
 } catch (error) {}
 export const messaging = messagingRef;

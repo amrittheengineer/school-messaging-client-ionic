@@ -133,7 +133,7 @@ const PostCard: React.FC<{
       <div className="card-message">{item.message}</div>
       <div className="post-image-card-list">
         {
-          item.photos?.length && item.photos?.slice(0, 2).map((photo, index) => {
+          item.photos?.slice(0, 2).map((photo, index) => {
             return (
               <div className="post-image-card" key={index} onClick={() => {
                 openPostImage(index)
