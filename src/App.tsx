@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Route } from "react-router-dom";
 import { RouteComponentProps, useHistory } from "react-router";
 import {
@@ -8,6 +8,7 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
+  IonToast,
 } from "@ionic/react";
 import { home, image, chatbubbleEllipses } from "ionicons/icons";
 import Tab1 from "./pages/Tab1";
@@ -32,6 +33,7 @@ import "@ionic/react/css/display.css";
 
 /* Theme variables */
 import "./theme/variables.css";
+import { GlobalStateContext } from "./context/GlobalStateContext";
 const App: React.FC<RouteComponentProps> = ({ location }) => {
   // const history = useHistory();
   useEffect(() => {
@@ -39,9 +41,12 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
   }, []);
 
 
+
+
   const { replace } = useHistory();
   return (
     <IonTabs>
+
       <IonRouterOutlet>
         <Route path="/app/tab1" component={Tab1} exact={true} />
         <Route path="/app/tab2" component={Tab2} exact={true} />

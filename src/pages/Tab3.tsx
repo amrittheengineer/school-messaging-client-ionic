@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   IonContent,
   IonIcon,
@@ -6,19 +6,21 @@ import {
   IonCard,
   IonImg,
   IonThumbnail,
-  useIonViewWillLeave, useIonViewDidEnter, isPlatform
+  useIonViewWillLeave, useIonViewDidEnter, isPlatform, IonToast
 } from "@ionic/react";
 import "./Tab.css";
 import { image } from "ionicons/icons";
 import { Album } from "../interface/TypeInterface";
 import { GalleryContext } from "../context/GalleryContext";
 import Constant from "../Constant";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, useHistory } from "react-router";
 import { Plugins } from "@capacitor/core";
 import { AppMinimize } from "@ionic-native/app-minimize";
+import { GlobalStateContext } from "../context/GlobalStateContext";
 const { getStorageURL } = Constant;
 
 const Tab3: React.FC<RouteComponentProps> = () => {
+  const { push } = useHistory()
   useIonViewDidEnter(() => {
     // alert("Set")
     Plugins.App.addListener("backButton", () => {
@@ -33,10 +35,26 @@ const Tab3: React.FC<RouteComponentProps> = () => {
     Plugins.App.removeAllListeners();
   }, [])
   const albumList = useContext(GalleryContext)!.albumList;
+  const [toastMessage, showToastMessage] = useState<string>("");
 
+  const { connectionStatus } = useContext(GlobalStateContext)!;
+
+  // useEffect(() => {
+  //   if (connectionStatus === false) {
+  //     showToastMessage("No internet connection.")
+  //   }
+  // }, [connectionStatus]);
+  useEffect(() => {
+    if (toastMessage !== "") {
+      setTimeout(() => {
+        showToastMessage("");
+      }, 2000);
+    }
+  }, [toastMessage]);
   return (
     <IonPage>
       <IonContent>
+        <IonToast color="primary" message={toastMessage} isOpen={toastMessage !== ""} />
         <div className="page-container">
           <div className="header">
             <div className="tab-name-container">
@@ -57,7 +75,14 @@ const Tab3: React.FC<RouteComponentProps> = () => {
                 <AlbumCard
                   album={album}
                   key={album.id}
-                  delay={index}
+                  onClick={() => {
+                    if (connectionStatus) {
+
+                      push("/app/album/" + album.id);
+                    } else {
+                      showToastMessage("No internet connection.")
+                    }
+                  }}
                 />
                 // </IonRouterLink>
               ))}
@@ -71,12 +96,12 @@ const Tab3: React.FC<RouteComponentProps> = () => {
 
 const AlbumCard: React.FC<{
   album: Album;
-  delay: number;
-}> = ({ album }) => {
+  onClick: () => void;
+}> = ({ album, onClick }) => {
   return (
 
     <div className="album-card-wrapper">
-      <IonCard routerLink={"/app/album/" + album.id} routerDirection="forward" >
+      <IonCard onClick={onClick} >
         {/* <img
         className="album-thumbnail"
         src={getStorageURL(album.id, album.thumbnail)}

@@ -42,6 +42,9 @@ const Constant = {
       return day + " " + month + " " + year;
     }
   },
+  galleryTempListKey: "stmarys8681gallery",
+  postTempListKey: "stmarys8681post",
+  announcementTempListKey: "stmarys8681announcement",
   // selectColor: (sub: string) => {
   //   if (sub == "Tamil" || sub == "தமிழ்") {
   //     return "#40739e";

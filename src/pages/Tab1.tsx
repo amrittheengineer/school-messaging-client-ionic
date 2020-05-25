@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { IonContent, IonPage, IonIcon, IonRefresher, IonRefresherContent, useIonViewWillLeave, useIonViewDidEnter, isPlatform } from "@ionic/react";
+import React, { useContext, useState, useEffect } from "react";
+import { IonContent, IonPage, IonIcon, IonRefresher, IonRefresherContent, useIonViewWillLeave, useIonViewDidEnter, isPlatform, IonToast } from "@ionic/react";
 import "./Tab.css";
 import { home } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
@@ -40,7 +40,22 @@ const Tab1: React.FC<RouteComponentProps> = () => {
   useIonViewWillLeave(() => {
     Plugins.App.removeAllListeners();
   }, [])
-  const { classAnnouncements, refreshClassAnnouncements, loadMoreClassAnnouncements, hasMoreClassAnnouncements, classAnnouncementsLoading } = useContext(GlobalStateContext)!;
+  const { classAnnouncements, refreshClassAnnouncements, loadMoreClassAnnouncements, hasMoreClassAnnouncements, classAnnouncementsLoading, connectionStatus } = useContext(GlobalStateContext)!;
+
+  const [toastMessage, showToastMessage] = useState<string>("")
+
+  useEffect(() => {
+    if (connectionStatus === false) {
+      showToastMessage("No internet connection.")
+    }
+  }, [connectionStatus]);
+  useEffect(() => {
+    if (toastMessage !== "") {
+      setTimeout(() => {
+        showToastMessage("");
+      }, 2000);
+    }
+  }, [toastMessage]);
   return (
     <IonPage >
       <IonContent>
@@ -52,6 +67,7 @@ const Tab1: React.FC<RouteComponentProps> = () => {
         >
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
+        <IonToast color="primary" message={toastMessage} isOpen={toastMessage !== ""} />
         <div className="page-container">
           <div className="header">
             <div className="tab-name-container">

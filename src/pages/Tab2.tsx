@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, } from "react";
-import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem, IonLoading, IonRefresher, IonRefresherContent, useIonViewWillLeave, useIonViewWillEnter, isPlatform, useIonViewDidEnter } from "@ionic/react";
+import { IonContent, IonPage, IonIcon, IonCard, IonThumbnail, IonImg, IonItem, IonLoading, IonRefresher, IonRefresherContent, useIonViewWillLeave, useIonViewWillEnter, isPlatform, useIonViewDidEnter, IonToast } from "@ionic/react";
 import "./Tab.css";
 import { chatbubbleEllipses } from "ionicons/icons";
 import { GlobalStateContext } from "../context/GlobalStateContext";
@@ -42,8 +42,22 @@ const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) =
   useIonViewWillLeave(() => {
     Plugins.App.removeAllListeners();
   }, [])
-  const { announcements, setCurrentPost, hasMoreAnnouncements, loadMoreAnnouncements, announcementsLoading, refreshAnnouncements } = useContext(GlobalStateContext)!;
+  const { announcements, setCurrentPost, hasMoreAnnouncements, loadMoreAnnouncements, announcementsLoading, refreshAnnouncements, connectionStatus } = useContext(GlobalStateContext)!;
   const [loading, setLoading] = useState<boolean>(false);
+  const [toastMessage, showToastMessage] = useState<string>("")
+
+  useEffect(() => {
+    if (connectionStatus === false) {
+      showToastMessage("No internet connection.")
+    }
+  }, [connectionStatus]);
+  useEffect(() => {
+    if (toastMessage !== "") {
+      setTimeout(() => {
+        showToastMessage("");
+      }, 2000);
+    }
+  }, [toastMessage]);
   return (
     <IonPage >
       <IonContent>
@@ -56,6 +70,7 @@ const Tab2: React.FC<RouteComponentProps> = ({ history }: RouteComponentProps) =
         >
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
+        <IonToast color="primary" message={toastMessage} isOpen={toastMessage !== ""} />
         <IonLoading message="Loading" isOpen={loading} />
         <div className="page-container">
           <div className="header">

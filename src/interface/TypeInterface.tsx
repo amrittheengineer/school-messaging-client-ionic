@@ -23,6 +23,7 @@ export interface GlobalStateContextInterface {
   loadMoreClassAnnouncements: (cancel?: CancelToken) => void;
   refreshClassAnnouncements: () => void;
   hasMoreClassAnnouncements: boolean;
+  connectionStatus: boolean;
 }
 // interface Props<T> {
 //   list: T[];

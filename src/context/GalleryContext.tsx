@@ -9,8 +9,9 @@ import {
   Photo
 } from "../interface/TypeInterface";
 import { storage } from '../modules/firebase';
-import { Plugins, FilesystemDirectory } from '@capacitor/core';
+import { Plugins, FilesystemDirectory, Storage } from '@capacitor/core';
 import "firebase/storage";
+import Constant from "../Constant";
 
 const { Filesystem } = Plugins;
 
@@ -256,6 +257,19 @@ export const GalleryContextProvider = (props: { children: any }) => {
   const [albumList, setAlbumList] = useState<Array<Album>>([]);
 
   useEffect(() => {
+    if (!albumList.length) {
+      Storage.get({ key: Constant.galleryTempListKey }).then(({ value }) => {
+        if (value) {
+          const items = JSON.parse(value);
+          if (items.length) {
+            setAlbumList(items);
+          }
+        }
+      })
+    }
+  }, [albumList])
+
+  useEffect(() => {
     let cancel: Canceler;
     let source: CancelToken = new axios.CancelToken((c) => {
       cancel = c;
@@ -268,7 +282,12 @@ export const GalleryContextProvider = (props: { children: any }) => {
 
     requestPromise
       .then((res: AxiosResponse<{ data: Array<Album> }>) => {
-        setAlbumList([...res.data.data]);
+        const result = [...res.data.data];
+        setAlbumList(result);
+        if (result.length) {
+
+          Storage.set({ key: Constant.galleryTempListKey, value: JSON.stringify(result) })
+        }
       })
       .catch((err) => console.error(err));
 

@@ -9,6 +9,7 @@ import {
 } from "../interface/TypeInterface";
 import { Storage, Plugins } from "@capacitor/core";
 import { isPlatform } from "@ionic/react";
+import Constant from "../Constant";
 
 export const GlobalStateContext = createContext<GlobalStateContextInterface | null>(
   null
@@ -25,6 +26,51 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
   const [hasMoreClassAnnouncements, setHasMoreClassAnnouncements] = useState<boolean>(true);
   const [classAnnouncementsLoading, setClassAnnouncementsLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
+
+
+  const [connectionStatus, setConnectionStatus] = useState(true);
+  // const onlineListener = () => {
+  //   if (!connectionStatus) setConnectionStatus(true);
+  //   refreshAnnouncements();
+  //   refreshClassAnnouncements();
+  // }
+  // const offlineListener = () => {
+  //   if (connectionStatus) setConnectionStatus(false);
+
+  // }
+
+  useEffect(() => {
+    if (connectionStatus) {
+      // console.error("App is online");
+
+
+    } else {
+      // No internet connection
+      // console.error("App is offline");
+      setHasMoreAnnouncements(false);
+      setHasMoreClassAnnouncements(false);
+      if (!classAnnouncements.length) {
+        Storage.get({ key: Constant.announcementTempListKey }).then(({ value }) => {
+          if (value) {
+            const items = JSON.parse(value);
+            if (items.length) {
+              setClassAnnouncements(items);
+            }
+          }
+        });
+      }
+      if (!announcements.length) {
+        Storage.get({ key: Constant.postTempListKey }).then(({ value }) => {
+          if (value) {
+            const items = JSON.parse(value);
+            if (items.length) {
+              setAnnouncements(items);
+            }
+          }
+        })
+      }
+    }
+  }, [connectionStatus]);
 
   const updateUser = () => {
     Storage.get({ key: "batchId" }).then(batchId => {
@@ -67,7 +113,7 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
   useEffect(updateUser, []);
 
   const loadMoreAnnouncements = (source?: CancelToken) => {
-    if (announcementsLoading || !hasMoreAnnouncements) {
+    if (announcementsLoading || !hasMoreAnnouncements || !connectionStatus) {
       return;
     }
     setAnnouncementsLoading(true);
@@ -81,19 +127,33 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
     requestPromise
       .then((res) => {
         const { data } = res.data;
+
         if (!data.length) {
           setHasMoreAnnouncements(false);
         } else {
-          setAnnouncements(prev => [...prev, ...data]);
+          setAnnouncements(prev => {
+            const result = [
+              ...prev, ...data.sort((next: Announcement, current: Announcement) => current.timeStamp - next.timeStamp),
+            ];
+            if (data.length) {
+              Storage.set({ key: Constant.postTempListKey, value: JSON.stringify(result) })
+            }
+
+            return result;
+          });
         }
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        if (err.message === "Network Error") {
+          if (connectionStatus) setConnectionStatus(false);
+        }
+      })
       .finally(() => {
         setAnnouncementsLoading(false);
       })
   }
   const loadMoreClassAnnouncements = (source?: CancelToken) => {
-    if (classAnnouncementsLoading || !hasMoreClassAnnouncements) {
+    if (classAnnouncementsLoading || !hasMoreClassAnnouncements || !connectionStatus) {
       return;
     }
     setClassAnnouncementsLoading(true);
@@ -109,13 +169,24 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         if (!data.length) {
           setHasMoreClassAnnouncements(false);
         } else {
-          setClassAnnouncements(prev => [
-            ...prev, ...data.sort((next, current) => current.timeStamp - next.timeStamp),
-          ]);
+          setClassAnnouncements(prev => {
+            const result = [
+              ...prev, ...data.sort((next, current) => current.timeStamp - next.timeStamp),
+            ];
+            if (data.length) {
+              Storage.set({ key: Constant.announcementTempListKey, value: JSON.stringify(result) })
+            }
+
+            return result;
+          });
+
         }
       })
-      .catch((err) => console.log(err))
-      .finally(() => {
+      .catch((err) => {
+        if (err.message === "Network Error") {
+          if (connectionStatus) setConnectionStatus(false);
+        }
+      }).finally(() => {
         setClassAnnouncementsLoading(false);
       })
   }
@@ -136,14 +207,18 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
     })
   }
   const refreshAnnouncements = () => {
+    if (!connectionStatus) setConnectionStatus(true)
     setAnnouncements(prev => []);
     setHasMoreAnnouncements(prev => true);
+
     // setAnnouncementsLoading(prev => false);
     // loadMoreAnnouncements();
   }
   const refreshClassAnnouncements = () => {
+    if (!connectionStatus) setConnectionStatus(true)
     setClassAnnouncements(prev => []);
     setHasMoreClassAnnouncements(prev => true);
+
     // loadMoreClassAnnouncements();
     // setClassAnnouncementsLoading(prev => false);
   }
@@ -153,13 +228,15 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
     let source = new axios.CancelToken((c) => {
       cancel = c;
     });
-    if (hasMoreAnnouncements && announcements.length === 0) {
+    if (user && user.batchId && hasMoreAnnouncements && announcements.length === 0) {
       loadMoreAnnouncements(source);
     }
     return () => {
+      // console.error("Cancelled");
+
       if (cancel) cancel();
     }
-  }, [hasMoreAnnouncements, announcements])
+  }, [hasMoreAnnouncements, announcements, user])
   useEffect(() => {
     let cancel: Canceler;
     let source = new axios.CancelToken((c) => {
@@ -229,7 +306,8 @@ export const GlobalStateContextProvider = (props: { children: any }) => {
         refreshClassAnnouncements,
         hasMoreClassAnnouncements,
         loadMoreClassAnnouncements,
-        classAnnouncementsLoading
+        classAnnouncementsLoading,
+        connectionStatus
       }}
     >
       {props.children}
