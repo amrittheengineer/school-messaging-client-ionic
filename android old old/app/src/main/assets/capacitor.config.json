@@ -1,8 +1,0 @@
-{
-  "appId": "com.tecoit.app.school",
-  "appName": "School App",
-  "bundledWebRuntime": false,
-  "npmClient": "npm",
-  "webDir": "build",
-  "cordova": {}
-}
